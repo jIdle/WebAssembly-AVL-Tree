@@ -11,90 +11,159 @@ import (
 
 var scanner = bufio.NewScanner(os.Stdin)
 
-type node struct {
+type node struct { // Should not be exported. Only BST data structure should have knowledge of a node.
 	Data  int
 	Left  *node
 	Right *node
 }
 
-func (current *node) Insert(data int) error {
-	if current == nil {
+// Insert : Called by node type. Integer argument will be inserted in tree. Error is return if root node is nil.
+func (cur *node) Insert(data int) error {
+	if cur == nil {
 		return errors.New("Initialize root node first.")
 	}
 
-	if data == current.Data { // Fix this, needs to push data right on equal
-		return nil
-	} else if data < current.Data {
-		if current.Left == nil {
-			current.Left = &node{Data: data}
+	if data < cur.Data {
+		if cur.Left == nil {
+			cur.Left = &node{Data: data}
 			return nil
 		}
-		return current.Left.Insert(data)
-	} else if data >= current.Data {
-		if current.Right == nil {
-			current.Right = &node{Data: data}
+		return cur.Left.Insert(data)
+	} else if data >= cur.Data {
+		if cur.Right == nil {
+			cur.Right = &node{Data: data}
 			return nil
 		}
-		return current.Right.Insert(data)
+		return cur.Right.Insert(data)
 	}
 	return nil
 }
 
-func (current *node) Find(data int) (int, bool) {
-	if current == nil {
-		return 0, false
+// findIOS : Helper Function : Called by node type. Called by right child of the node to be removed. Goes left until nil from there. Removes and returns farthest left node as IOS to node-to-be-removed.
+func (cur *node) findIOS(par *node) int {
+	if cur.Left == nil {
+		par.Left = cur.Right
+		return cur.Data
 	}
-	if data == current.Data {
-		return current.Data, true
-	} else if data < current.Data {
-		return current.Left.Find(data)
+	return cur.Left.findIOS(cur)
+}
+
+// replaceChild : Helper function for Remove. This function will remove a node from a bst by replacing it with repl.
+func (cur *node) replaceChild(par *node, repl *node) error {
+	if cur == nil {
+		return errors.New("The function replaceChild() can't be called on a nil node.")
+	}
+
+	if par.Left == cur {
+		par.Left = repl
 	} else {
-		return current.Right.Find(data)
+		par.Right = repl
+	}
+	return nil
+}
+
+// Remove : Wrapper function for _Remove.
+func (cur *node) Remove(data int) error {
+	return cur._Remove(data, nil)
+}
+
+// _Remove : Called by node type. Integer argument will be removed if found. Otherwise return error.
+func (cur *node) _Remove(data int, par *node) error {
+	if cur == nil {
+		return errors.New("Could not find specified value.")
+	}
+
+	switch {
+	case data < cur.Data:
+		return cur.Left._Remove(data, cur)
+	case data > cur.Data:
+		return cur.Right._Remove(data, cur)
+	case data == cur.Data:
+		if cur.Left == nil && cur.Right == nil {
+			return cur.replaceChild(par, nil)
+		} else if cur.Left == nil {
+			return cur.replaceChild(par, cur.Right)
+		} else if cur.Right == nil {
+			return cur.replaceChild(par, cur.Left)
+		}
+		// Check that right has a left to warrant calling IOS
+		rChild := cur.Right
+		if rChild.Left == nil {
+			cur.Data = rChild.Data
+			cur.Right = rChild.Right
+		} else {
+			cur.Data = rChild.findIOS(nil)
+		}
+	}
+	return nil
+}
+
+// Find : Called by node type. Integer argument will be returned search for in tree. Matching integer in tree will be returned with success boolean, if found. Otherwise 0 and false are returned.
+func (cur *node) Find(data int) (int, error) {
+	if cur == nil {
+		return 0, errors.New("Could find specified value.")
+	}
+	if data == cur.Data {
+		return cur.Data, nil
+	} else if data < cur.Data {
+		return cur.Left.Find(data)
+	} else {
+		return cur.Right.Find(data)
 	}
 }
 
-func (current *node) Display() int {
-	if current == nil {
+// displayAll : Wrapper function for recursive _displayAll().
+func (cur *node) displayAll() int {
+	return cur._displayAll(0)
+}
+
+// _displayAll : Called by node type. Recursive version of display. No arguments taken, and an integer is returned to represent the number of nodes displayed (total # of nodes).
+func (cur *node) _displayAll(level int) int {
+	if cur == nil {
 		return 0
 	}
-	retVal := current.Left.Display() + 1
-	fmt.Println("Data: " + strconv.Itoa(current.Data))
-	return current.Right.Display() + retVal
+	retVal := cur.Left._displayAll(level+1) + 1
+	fmt.Printf("Level %d: %d\n", level, cur.Data)
+	return cur.Right._displayAll(level+1) + retVal
 }
 
-func main() { // For right now main is just used to test the functions incrementally
+func main() {
 	head := node{10, nil, nil}
 	for {
-		fmt.Println("\n3) Find")
-		fmt.Println("2) Display")
-		fmt.Println("1) Insert")
-		fmt.Println("0) Exit")
+		fmt.Println("\n\t0) Exit")
+		fmt.Println("\t1) Insert")
+		fmt.Println("\t2) Find")
+		fmt.Println("\t3) Display")
+		fmt.Println("\t4) Remove")
 		scanner.Scan()
 		fmt.Println()
-		input, _ := strconv.Atoi(scanner.Text())
-		if input == 1 {
+		switch input, _ := strconv.Atoi(scanner.Text()); input {
+		case 0:
+			fmt.Println("Exiting...")
+			os.Exit(1)
+		case 1:
 			fmt.Println("Enter the value you would like to insert:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
 			head.Insert(input)
-		} else if input == 2 {
-			fmt.Printf("There are %d node(s) in the tree\n", head.Display())
-		} else if input == 3 {
+		case 2:
 			fmt.Println("Enter the number you would like to search for:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
-			_, inTree := head.Find(input)
-			if inTree == true {
-				fmt.Println("Value found in tree.")
+			if data, e := head.Find(input); e == nil {
+				fmt.Printf("%d was found in the tree.\n", data)
 			} else {
-				fmt.Println("Value not found in tree.")
+				fmt.Println(e)
 			}
-		} else if input == 0 {
-			fmt.Println("Exiting...")
-			break
-		} else {
+		case 3:
+			fmt.Printf("There are %d node(s) in the tree\n", head.displayAll())
+		case 4:
+			fmt.Println("Enter the value you would like to remove:")
+			scanner.Scan()
+			input, _ = strconv.Atoi(scanner.Text())
+			fmt.Println(head.Remove(input))
+		default:
 			fmt.Println("Please enter a valid input.")
 		}
 	}
-	os.Exit(1)
 }
