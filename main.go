@@ -17,8 +17,8 @@ type node struct { // Should not be exported. Only BST data structure should hav
 	Right *node
 }
 
-// Insert : Called by node type. Integer argument will be inserted in tree. Error is return if root node is nil.
-func (cur *node) Insert(data int) error {
+// insert : Called by node type. Integer argument will be inserted in tree. Error is return if root node is nil.
+func (cur *node) insert(data int) error {
 	if cur == nil {
 		return errors.New("Initialize root node first.")
 	}
@@ -28,18 +28,18 @@ func (cur *node) Insert(data int) error {
 			cur.Left = &node{Data: data}
 			return nil
 		}
-		return cur.Left.Insert(data)
+		return cur.Left.insert(data)
 	} else if data >= cur.Data {
 		if cur.Right == nil {
 			cur.Right = &node{Data: data}
 			return nil
 		}
-		return cur.Right.Insert(data)
+		return cur.Right.insert(data)
 	}
 	return nil
 }
 
-// findIOS : Helper Function : Called by node type. Called by right child of the node to be removed. Goes left until nil from there. Removes and returns farthest left node as IOS to node-to-be-removed.
+// findIOS : Helper Function : Called by node type. Called by right child of the node to be removed. Goes left until nil from there. removes and returns farthest left node as IOS to node-to-be-removed.
 func (cur *node) findIOS(par *node) int {
 	if cur.Left == nil {
 		par.Left = cur.Right
@@ -48,10 +48,13 @@ func (cur *node) findIOS(par *node) int {
 	return cur.Left.findIOS(cur)
 }
 
-// replaceChild : Helper function for Remove. This function will remove a node from a bst by replacing it with repl.
+// replaceChild : Helper function for remove. This function will remove a node from a bst by replacing it with repl.
 func (cur *node) replaceChild(par *node, repl *node) error {
 	if cur == nil {
 		return errors.New("The function replaceChild() can't be called on a nil node.")
+	}
+	if par == nil {
+		return errors.New("Removal of root node case not caught in wrapper function.")
 	}
 
 	if par.Left == cur {
@@ -62,22 +65,22 @@ func (cur *node) replaceChild(par *node, repl *node) error {
 	return nil
 }
 
-// Remove : Wrapper function for _Remove.
-func (cur *node) Remove(data int) error {
-	return cur._Remove(data, nil)
+// remove : Wrapper function for _remove.
+func (cur *node) remove(data int) error {
+	return cur._remove(data, nil)
 }
 
-// _Remove : Called by node type. Integer argument will be removed if found. Otherwise return error.
-func (cur *node) _Remove(data int, par *node) error {
+// _remove : Called by node type. Integer argument will be removed if found. Otherwise return error.
+func (cur *node) _remove(data int, par *node) error {
 	if cur == nil {
 		return errors.New("Could not find specified value.")
 	}
 
 	switch {
 	case data < cur.Data:
-		return cur.Left._Remove(data, cur)
+		return cur.Left._remove(data, cur)
 	case data > cur.Data:
-		return cur.Right._Remove(data, cur)
+		return cur.Right._remove(data, cur)
 	case data == cur.Data:
 		if cur.Left == nil && cur.Right == nil {
 			return cur.replaceChild(par, nil)
@@ -98,17 +101,17 @@ func (cur *node) _Remove(data int, par *node) error {
 	return nil
 }
 
-// Find : Called by node type. Integer argument will be returned search for in tree. Matching integer in tree will be returned with success boolean, if found. Otherwise 0 and false are returned.
-func (cur *node) Find(data int) (int, error) {
+// find : Called by node type. Integer argument will be returned search for in tree. Matching integer in tree will be returned with success boolean, if found. Otherwise 0 and false are returned.
+func (cur *node) find(data int) (int, error) {
 	if cur == nil {
-		return 0, errors.New("Could find specified value.")
+		return 0, errors.New("Could not find specified value.")
 	}
 	if data == cur.Data {
 		return cur.Data, nil
 	} else if data < cur.Data {
-		return cur.Left.Find(data)
+		return cur.Left.find(data)
 	} else {
-		return cur.Right.Find(data)
+		return cur.Right.find(data)
 	}
 }
 
@@ -127,8 +130,60 @@ func (cur *node) _displayAll(level int) int {
 	return cur.Right._displayAll(level+1) + retVal
 }
 
+// Tree : Container for root node.
+type Tree struct {
+	Root *node
+}
+
+// Insert : Wrapper function for node insert.
+func (t *Tree) Insert(data int) error {
+	if t.Root == nil {
+		t.Root = &node{Data: data}
+		return nil
+	}
+	return t.Root.insert(data)
+}
+
+// Find : Wrapper function for node find.
+func (t *Tree) Find(data int) (int, error) {
+	if t.Root == nil {
+		return 0, errors.New("No data to find in empty tree.")
+	}
+	return t.Root.find(data)
+}
+
+// Remove : Wrapper function for node remove.
+func (t *Tree) Remove(data int) error {
+	if t.Root == nil {
+		return errors.New("No data to remove in empty tree.")
+	}
+
+	if data != t.Root.Data {
+		return t.Root.remove(data)
+	}
+	switch {
+	case t.Root.Left == nil && t.Root.Right == nil:
+		t.Root = nil
+	case t.Root.Left == nil:
+		t.Root = t.Root.Right
+	case t.Root.Right == nil:
+		t.Root = t.Root.Left
+	default:
+		return t.Root.remove(data)
+	}
+	return nil
+}
+
+// Display : Wrapper function for node displayAll.
+func (t *Tree) Display() int {
+	if t.Root == nil {
+		return 0
+	}
+	return t.Root.displayAll()
+}
+
 func main() {
-	head := node{10, nil, nil}
+	myTree := &Tree{}
 	for {
 		fmt.Println("\n\t0) Exit")
 		fmt.Println("\t1) Insert")
@@ -145,23 +200,27 @@ func main() {
 			fmt.Println("Enter the value you would like to insert:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
-			head.Insert(input)
+			myTree.Insert(input)
 		case 2:
 			fmt.Println("Enter the number you would like to search for:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
-			if data, e := head.Find(input); e == nil {
+			if data, e := myTree.Find(input); e == nil {
 				fmt.Printf("%d was found in the tree.\n", data)
 			} else {
 				fmt.Println(e)
 			}
 		case 3:
-			fmt.Printf("There are %d node(s) in the tree\n", head.displayAll())
+			fmt.Printf("There are %d node(s) in the tree.\n", myTree.Display())
 		case 4:
 			fmt.Println("Enter the value you would like to remove:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
-			fmt.Println(head.Remove(input))
+			if e := myTree.Remove(input); e != nil {
+				fmt.Println(e)
+			} else {
+				fmt.Println("Value successfully removed from tree.")
+			}
 		default:
 			fmt.Println("Please enter a valid input.")
 		}
