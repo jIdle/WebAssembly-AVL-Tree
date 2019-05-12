@@ -40,66 +40,66 @@ func (cur *node) insert(data int) error {
 }
 
 // findIOS : Helper Function : Called by node type. Called by right child of the node to be removed. Goes left until nil from there. removes and returns farthest left node as IOS to node-to-be-removed.
-func (cur *node) findIOS(par *node) int {
-	if cur.Left == nil {
-		par.Left = cur.Right
-		return cur.Data
-	}
-	return cur.Left.findIOS(cur)
-}
+//func (cur *node) findIOS(par *node) int {
+//	if cur.Left == nil {
+//		par.Left = cur.Right
+//		return cur.Data
+//	}
+//	return cur.Left.findIOS(cur)
+//}
 
 // replaceChild : Helper function for remove. This function will remove a node from a bst by replacing it with repl.
-func (cur *node) replaceChild(par *node, repl *node) error {
-	if cur == nil {
-		return errors.New("The function replaceChild() can't be called on a nil node.")
-	}
-	if par == nil {
-		return errors.New("Removal of root node case not caught in wrapper function.")
-	}
-
-	if par.Left == cur {
-		par.Left = repl
-	} else {
-		par.Right = repl
-	}
-	return nil
-}
+//func (cur *node) replaceChild(par *node, repl *node) error {
+//	if cur == nil {
+//		return errors.New("The function replaceChild() can't be called on a nil node.")
+//	}
+//	if par == nil {
+//		return errors.New("Removal of root node case not caught in wrapper function.")
+//	}
+//
+//	if par.Left == cur {
+//		par.Left = repl
+//	} else {
+//		par.Right = repl
+//	}
+//	return nil
+//}
 
 // remove : Wrapper function for _remove.
-func (cur *node) remove(data int) error {
-	return cur._remove(data, nil)
-}
+//func (cur *node) remove(data int) error {
+//	return cur._remove(data, nil)
+//}
 
 // _remove : Called by node type. Integer argument will be removed if found. Otherwise return error.
-func (cur *node) _remove(data int, par *node) error {
-	if cur == nil {
-		return errors.New("Could not find specified value.")
-	}
-
-	switch {
-	case data < cur.Data:
-		return cur.Left._remove(data, cur)
-	case data > cur.Data:
-		return cur.Right._remove(data, cur)
-	case data == cur.Data:
-		if cur.Left == nil && cur.Right == nil {
-			return cur.replaceChild(par, nil)
-		} else if cur.Left == nil {
-			return cur.replaceChild(par, cur.Right)
-		} else if cur.Right == nil {
-			return cur.replaceChild(par, cur.Left)
-		}
-		// Check that right has a left to warrant calling IOS
-		rChild := cur.Right
-		if rChild.Left == nil {
-			cur.Data = rChild.Data
-			cur.Right = rChild.Right
-		} else {
-			cur.Data = rChild.findIOS(nil)
-		}
-	}
-	return nil
-}
+//func (cur *node) _remove(data int, par *node) error {
+//	if cur == nil {
+//		return errors.New("Could not find specified value.")
+//	}
+//
+//	switch {
+//	case data < cur.Data:
+//		return cur.Left._remove(data, cur)
+//	case data > cur.Data:
+//		return cur.Right._remove(data, cur)
+//	case data == cur.Data:
+//		if cur.Left == nil && cur.Right == nil {
+//			return cur.replaceChild(par, nil)
+//		} else if cur.Left == nil {
+//			return cur.replaceChild(par, cur.Right)
+//		} else if cur.Right == nil {
+//			return cur.replaceChild(par, cur.Left)
+//		}
+//		// Check that right has a left to warrant calling IOS
+//		rChild := cur.Right
+//		if rChild.Left == nil {
+//			cur.Data = rChild.Data
+//			cur.Right = rChild.Right
+//		} else {
+//			cur.Data = rChild.findIOS(nil)
+//		}
+//	}
+//	return nil
+//}
 
 // find : Called by node type. Integer argument will be returned search for in tree. Matching integer in tree will be returned with success boolean, if found. Otherwise 0 and false are returned.
 func (cur *node) find(data int) (int, error) {
@@ -152,27 +152,35 @@ func (t *Tree) Find(data int) (int, error) {
 	return t.Root.find(data)
 }
 
-// Remove : Wrapper function for node remove.
+// Remove : ...
 func (t *Tree) Remove(data int) error {
 	if t.Root == nil {
 		return errors.New("No data to remove in empty tree.")
 	}
 
-	if data != t.Root.Data {
-		return t.Root.remove(data)
-	}
-	switch {
-	case t.Root.Left == nil && t.Root.Right == nil:
-		t.Root = nil
-	case t.Root.Left == nil:
-		t.Root = t.Root.Right
-	case t.Root.Right == nil:
-		t.Root = t.Root.Left
-	default:
-		return t.Root.remove(data)
-	}
-	return nil
 }
+
+// Remove : Wrapper function for node remove.
+//func (t *Tree) Remove(data int) error {
+//	if t.Root == nil {
+//		return errors.New("No data to remove in empty tree.")
+//	}
+//
+//	if data != t.Root.Data {
+//		return t.Root.remove(data)
+//	}
+//	switch {
+//	case t.Root.Left == nil && t.Root.Right == nil:
+//		t.Root = nil
+//	case t.Root.Left == nil:
+//		t.Root = t.Root.Right
+//	case t.Root.Right == nil:
+//		t.Root = t.Root.Left
+//	default:
+//		return t.Root.remove(data)
+//	}
+//	return nil
+//}
 
 // Display : Wrapper function for node displayAll.
 func (t *Tree) Display() int {
