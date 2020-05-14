@@ -11,95 +11,12 @@ import (
 
 var scanner = bufio.NewScanner(os.Stdin)
 
+// node : Container for user data
 type node struct { // Should not be exported. Only BST data structure should have knowledge of a node.
 	data  int
 	left  *node
 	right *node
 }
-
-// insert : Called by node type. Integer argument will be inserted in tree. Error is return if root node is nil.
-func (cur *node) insert(data int) error {
-	if cur == nil {
-		return errors.New("initialize root node first")
-	}
-
-	if data < cur.data {
-		if cur.left == nil {
-			cur.left = &node{data: data}
-			return nil
-		}
-		return cur.left.insert(data)
-	} else if data >= cur.data {
-		if cur.right == nil {
-			cur.right = &node{data: data}
-			return nil
-		}
-		return cur.right.insert(data)
-	}
-	return nil
-}
-
-// findIOS : Helper Function : Called by node type. Called by right child of the node to be removed. Goes left until nil from there. removes and returns farthest left node as IOS to node-to-be-removed.
-//func (cur *node) findIOS(par *node) int {
-//	if cur.left == nil {
-//		par.left = cur.right
-//		return cur.data
-//	}
-//	return cur.left.findIOS(cur)
-//}
-
-// replaceChild : Helper function for remove. This function will remove a node from a bst by replacing it with repl.
-//func (cur *node) replaceChild(par *node, repl *node) error {
-//	if cur == nil {
-//		return errors.New("The function replaceChild() can't be called on a nil node.")
-//	}
-//	if par == nil {
-//		return errors.New("Removal of root node case not caught in wrapper function.")
-//	}
-//
-//	if par.left == cur {
-//		par.left = repl
-//	} else {
-//		par.right = repl
-//	}
-//	return nil
-//}
-
-// remove : Wrapper function for _remove.
-//func (cur *node) remove(data int) error {
-//	return cur._remove(data, nil)
-//}
-
-// _remove : Called by node type. Integer argument will be removed if found. Otherwise return error.
-//func (cur *node) _remove(data int, par *node) error {
-//	if cur == nil {
-//		return errors.New("Could not find specified value.")
-//	}
-//
-//	switch {
-//	case data < cur.data:
-//		return cur.left._remove(data, cur)
-//	case data > cur.data:
-//		return cur.right._remove(data, cur)
-//	case data == cur.data:
-//		if cur.left == nil && cur.right == nil {
-//			return cur.replaceChild(par, nil)
-//		} else if cur.left == nil {
-//			return cur.replaceChild(par, cur.right)
-//		} else if cur.right == nil {
-//			return cur.replaceChild(par, cur.left)
-//		}
-//		// Check that right has a left to warrant calling IOS
-//		rChild := cur.right
-//		if rChild.left == nil {
-//			cur.data = rChild.data
-//			cur.right = rChild.right
-//		} else {
-//			cur.data = rChild.findIOS(nil)
-//		}
-//	}
-//	return nil
-//}
 
 // Tree : Container for root node.
 type Tree struct {
@@ -107,15 +24,68 @@ type Tree struct {
 }
 
 // Insert : Wrapper function for node insert.
-func (t *Tree) Insert(data int) error {
+func (t *Tree) Insert(data int) {
 	if t.root == nil {
 		t.root = &node{data: data}
-		return nil
+		return
 	}
-	return t.root.insert(data)
+	t.root = t.insert(t.root, data)
 }
 
-// Find : Wrapper function for node find.
+// insert : Called by Tree type. Recursive binary insertion. No return, should always insert.
+func (t *Tree) insert(current *node, data int) *node {
+	if current == nil {
+		return &node{data: data}
+	} else if data < current.data {
+		current.left = t.insert(current.left, data)
+	} else if data >= current.data {
+		current.right = t.insert(current.right, data)
+	}
+	return current
+}
+
+// Remove : Wrapper function for Tree recursive remove.
+func (t *Tree) Remove(data int) error {
+	if t.root == nil {
+		return errors.New("no data to remove in empty tree")
+	}
+	return t.remove(t.root, data)
+}
+
+// remove : Called by Tree type. Recursive binary removal. Returns error if applicable.
+func (t *Tree) remove(current *node, data int) error {
+	if current == nil {
+		return errors.New("could not find specified value")
+	}
+
+	if data == current.data {
+		if current.left == nil && current.right == nil {
+			current = nil
+		} else if current.left == nil {
+			current = current.right
+		} else if current.right == nil {
+			current = current.left
+		}
+		current = t.findIOS(current.right)
+	} else if data < current.data {
+		return t.remove(current.left, data)
+	}
+	return t.remove(current.right, data)
+}
+
+// findIOS : Helper function for remove to find and return the In-Order Successor
+func (t *Tree) findIOS(current *node) *node {
+	if current == nil {
+		return nil
+	} else if current.left == nil {
+		temp := current
+		current = current.right
+		return temp
+	}
+	return t.findIOS(current.left)
+}
+
+// Find : Wrapper function for Tree recursive find.
 func (t *Tree) Find(data int) (int, error) {
 	if t.root == nil {
 		return 0, errors.New("no data to find in empty tree")
@@ -123,7 +93,10 @@ func (t *Tree) Find(data int) (int, error) {
 	return t.find(t.root, data)
 }
 
+// find : Called by Tree type. Recursive binary search. Returns matching data.
 func (t *Tree) find(current *node, data int) (int, error) {
+	// "data" in this case may not always be an integer, could be a whole object
+	// but we match for the identifier/name
 	if current == nil {
 		return 0, errors.New("could not find specified value")
 	}
@@ -134,36 +107,6 @@ func (t *Tree) find(current *node, data int) (int, error) {
 	}
 	return t.find(current.right, data)
 }
-
-// Remove : ...
-func (t *Tree) Remove(data int) error {
-	if t.root == nil {
-		return errors.New("No data to remove in empty tree.")
-	}
-
-}
-
-// Remove : Wrapper function for node remove.
-//func (t *Tree) Remove(data int) error {
-//	if t.root == nil {
-//		return errors.New("No data to remove in empty tree.")
-//	}
-//
-//	if data != t.root.data {
-//		return t.root.remove(data)
-//	}
-//	switch {
-//	case t.root.left == nil && t.root.right == nil:
-//		t.root = nil
-//	case t.root.left == nil:
-//		t.root = t.root.right
-//	case t.root.right == nil:
-//		t.root = t.root.left
-//	default:
-//		return t.root.remove(data)
-//	}
-//	return nil
-//}
 
 // Display : Wrapper function for recursive display()
 func (t *Tree) Display() int {
