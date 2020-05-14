@@ -101,20 +101,6 @@ func (cur *node) insert(data int) error {
 //	return nil
 //}
 
-// find : Called by node type. Integer argument will be returned search for in tree. Matching integer in tree will be returned with success boolean, if found. Otherwise 0 and false are returned.
-func (cur *node) find(data int) (int, error) {
-	if cur == nil {
-		return 0, errors.New("could not find specified value")
-	}
-	if data == cur.data {
-		return cur.data, nil
-	} else if data < cur.data {
-		return cur.left.find(data)
-	} else {
-		return cur.right.find(data)
-	}
-}
-
 // Tree : Container for root node.
 type Tree struct {
 	root *node
@@ -132,9 +118,21 @@ func (t *Tree) Insert(data int) error {
 // Find : Wrapper function for node find.
 func (t *Tree) Find(data int) (int, error) {
 	if t.root == nil {
-		return 0, errors.New("No data to find in empty tree.")
+		return 0, errors.New("no data to find in empty tree")
 	}
-	return t.root.find(data)
+	return t.find(t.root, data)
+}
+
+func (t *Tree) find(current *node, data int) (int, error) {
+	if current == nil {
+		return 0, errors.New("could not find specified value")
+	}
+	if data == current.data {
+		return current.data, nil
+	} else if data < current.data {
+		return t.find(current.left, data)
+	}
+	return t.find(current.right, data)
 }
 
 // Remove : ...
