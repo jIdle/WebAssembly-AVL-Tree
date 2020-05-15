@@ -33,15 +33,15 @@ func (t *Tree) Insert(data int) {
 }
 
 // insert : Called by Tree type. Recursive binary insertion. No return, should always insert.
-func (t *Tree) insert(current *node, data int) *node {
-	if current == nil {
+func (t *Tree) insert(root *node, data int) *node {
+	if root == nil {
 		return &node{data: data}
-	} else if data < current.data {
-		current.left = t.insert(current.left, data)
-	} else if data >= current.data {
-		current.right = t.insert(current.right, data)
+	} else if data < root.data {
+		root.left = t.insert(root.left, data)
+	} else if data >= root.data {
+		root.right = t.insert(root.right, data)
 	}
-	return current
+	return root
 }
 
 // Remove : Wrapper function for Tree recursive remove.
@@ -49,66 +49,78 @@ func (t *Tree) Remove(data int) error {
 	if t.root == nil {
 		return errors.New("no data to remove in empty tree")
 	}
-	return t.remove(t.root, data)
+	var err error
+	t.root, err = t.remove(t.root, data)
+	return err
 }
 
 // remove : Called by Tree type. Recursive binary removal. Returns error if applicable.
-func (t *Tree) remove(current *node, data int) error {
-	if current == nil {
-		return errors.New("could not find specified value")
+func (t *Tree) remove(root *node, data int) (*node, error) {
+	var err error
+	if root == nil {
+		err = errors.New("could not find specified value")
+		return nil, err
 	}
 
-	if data == current.data {
-		if current.left == nil && current.right == nil {
-			current = nil
-		} else if current.left == nil {
-			current = current.right
-		} else if current.right == nil {
-			current = current.left
+	if data == root.data {
+		if root.left == nil && root.right == nil {
+			root = nil
+		} else if root.left == nil {
+			root = root.right
+		} else if root.right == nil {
+			root = root.left
+		} else {
+			var ios *node
+			root.right, ios = t.findIOS(root.right)
+			ios.left = root.left
+			ios.right = root.right
+			root = ios
 		}
-		current = t.findIOS(current.right)
-	} else if data < current.data {
-		return t.remove(current.left, data)
+		return root, nil
+	} else if data < root.data {
+		root.left, err = t.remove(root.left, data)
+		return root, err
 	}
-	return t.remove(current.right, data)
+	root.right, err = t.remove(root.right, data)
+	return root, err
 }
 
-// findIOS : Helper function for remove to find and return the In-Order Successor
-func (t *Tree) findIOS(current *node) *node {
-	if current == nil {
-		return nil
-	} else if current.left == nil {
-		temp := current
-		current = current.right
-		return temp
+// findIOS : Helper function for remove to search and return the In-Order Successor
+func (t *Tree) findIOS(root *node) (*node, *node) {
+	var ios *node
+	if root.left == nil {
+		ios := root
+		root = root.right
+		return root, ios
 	}
-	return t.findIOS(current.left)
+	root.left, ios = t.findIOS(root.left)
+	return root, ios
 }
 
-// Find : Wrapper function for Tree recursive find.
-func (t *Tree) Find(data int) (int, error) {
+// Search : Wrapper function for Tree recursive search.
+func (t *Tree) Search(data int) (int, error) {
 	if t.root == nil {
-		return 0, errors.New("no data to find in empty tree")
+		return 0, errors.New("no data to search in empty tree")
 	}
-	return t.find(t.root, data)
+	return t.search(t.root, data)
 }
 
-// find : Called by Tree type. Recursive binary search. Returns matching data.
-func (t *Tree) find(current *node, data int) (int, error) {
+// search : Called by Tree type. Recursive binary search. Returns matching data.
+func (t *Tree) search(root *node, data int) (int, error) {
 	// "data" in this case may not always be an integer, could be a whole object
 	// but we match for the identifier/name
-	if current == nil {
+	if root == nil {
 		return 0, errors.New("could not find specified value")
 	}
-	if data == current.data {
-		return current.data, nil
-	} else if data < current.data {
-		return t.find(current.left, data)
+	if data == root.data {
+		return root.data, nil
+	} else if data < root.data {
+		return t.search(root.left, data)
 	}
-	return t.find(current.right, data)
+	return t.search(root.right, data)
 }
 
-// Display : Wrapper function for recursive display()
+// Display : Wrapper function for recursive display
 func (t *Tree) Display() int {
 	if t.root == nil {
 		return 0
@@ -117,13 +129,13 @@ func (t *Tree) Display() int {
 }
 
 // display : Called by tree type. Recursive preorder display. Returns number of nodes.
-func (t *Tree) display(current *node, level int) int {
-	if current == nil {
+func (t *Tree) display(root *node, level int) int {
+	if root == nil {
 		return 0
 	}
-	retVal := t.display(current.left, level+1) + 1
-	fmt.Printf("Level %d: %d\n", level, current.data) // probably stupid and will remove
-	return t.display(current.right, level+1) + retVal
+	retVal := t.display(root.left, level+1) + 1
+	fmt.Printf("Level %d: %d\n", level, root.data) // probably stupid and will remove
+	return t.display(root.right, level+1) + retVal
 }
 
 func main() {
@@ -131,7 +143,7 @@ func main() {
 	for {
 		fmt.Println("\n\t0) Exit")
 		fmt.Println("\t1) Insert")
-		fmt.Println("\t2) Find")
+		fmt.Println("\t2) Search")
 		fmt.Println("\t3) Display")
 		fmt.Println("\t4) Remove")
 		scanner.Scan()
@@ -149,7 +161,7 @@ func main() {
 			fmt.Println("Enter the number you would like to search for:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
-			if data, e := myTree.Find(input); e == nil {
+			if data, e := myTree.Search(input); e == nil {
 				fmt.Printf("%d was found in the tree.\n", data)
 			} else {
 				fmt.Println(e)
