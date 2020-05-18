@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 )
@@ -14,6 +15,7 @@ var scanner = bufio.NewScanner(os.Stdin)
 // node : Container for user data
 type node struct { // Should not be exported. Only BST data structure should have knowledge of a node.
 	data  int
+	rank  int
 	left  *node
 	right *node
 }
@@ -21,6 +23,22 @@ type node struct { // Should not be exported. Only BST data structure should hav
 // Tree : Container for root node.
 type Tree struct {
 	root *node
+}
+
+// Height : Public function returns the total height of the tree. Calls recursive height function on root.
+func (t *Tree) Height() int {
+	if t.root == nil {
+		return 0
+	}
+	return int(t.height(t.root))
+}
+
+// height : Private recursive function, returns height of specified node.
+func (t *Tree) height(root *node) float64 {
+	if root == nil {
+		return 0
+	}
+	return math.Max(t.height(root.left), t.height(root.right)) + 1
 }
 
 // Insert : Wrapper function for node insert.
@@ -146,8 +164,10 @@ func main() {
 		fmt.Println("\t2) Search")
 		fmt.Println("\t3) Display")
 		fmt.Println("\t4) Remove")
+		fmt.Println("\t5) Height")
 		scanner.Scan()
 		fmt.Println()
+
 		switch input, _ := strconv.Atoi(scanner.Text()); input {
 		case 0:
 			fmt.Println("Exiting...")
@@ -156,15 +176,17 @@ func main() {
 			fmt.Println("Enter the value you would like to insert:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
+
 			myTree.Insert(input)
 		case 2:
 			fmt.Println("Enter the number you would like to search for:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
+
 			if data, e := myTree.Search(input); e == nil {
 				fmt.Printf("%d was found in the tree.\n", data)
 			} else {
-				fmt.Println(e)
+				fmt.Println("Error encountered: ", e)
 			}
 		case 3:
 			fmt.Printf("There are %d node(s) in the tree.\n", myTree.Display())
@@ -172,11 +194,14 @@ func main() {
 			fmt.Println("Enter the value you would like to remove:")
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
+
 			if e := myTree.Remove(input); e != nil {
-				fmt.Println(e)
+				fmt.Println("Error encountered: ", e)
 			} else {
 				fmt.Println("Value successfully removed from tree.")
 			}
+		case 5:
+			fmt.Println("Height of tree is: ", myTree.Height())
 		default:
 			fmt.Println("Please enter a valid input.")
 		}
