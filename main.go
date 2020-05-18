@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"errors"
 	"fmt"
 	"math"
@@ -23,22 +24,6 @@ type node struct { // Should not be exported. Only BST data structure should hav
 // Tree : Container for root node.
 type Tree struct {
 	root *node
-}
-
-// Height : Public function returns the total height of the tree. Calls recursive height function on root.
-func (t *Tree) Height() int {
-	if t.root == nil {
-		return 0
-	}
-	return int(t.height(t.root))
-}
-
-// height : Private recursive function, returns height of specified node.
-func (t *Tree) height(root *node) float64 {
-	if root == nil {
-		return 0
-	}
-	return math.Max(t.height(root.left), t.height(root.right)) + 1
 }
 
 // Insert : Wrapper function for node insert.
@@ -156,15 +141,72 @@ func (t *Tree) display(root *node, level int) int {
 	return t.display(root.right, level+1) + retVal
 }
 
+// Height : Public function returns the total height of the tree. Calls recursive height function on root.
+func (t *Tree) Height() float64 {
+	if t.root == nil {
+		return 0
+	}
+	return t.height(t.root)
+}
+
+// height : Private recursive function, returns height of specified node.
+func (t *Tree) height(root *node) float64 {
+	if root == nil {
+		return 0
+	}
+	return math.Max(t.height(root.left), t.height(root.right)) + 1
+}
+
+// LevelDisplay : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
+func (t *Tree) LevelDisplay() (int, error) {
+	count := 0
+	totalHeight := t.Height()
+	lastHeight := totalHeight
+	if lastHeight == 0 {
+		return 0, nil
+	}
+
+	queue := list.New()
+	queue.PushBack(t.root)
+
+	fmt.Printf("Level %v: ", totalHeight-lastHeight)
+	for queue.Len() != 0 {
+		count++
+		element := queue.Remove(queue.Front())
+		root, ok := element.(*node)
+		if !ok {
+			return 0, errors.New("(*node) type assertion failed")
+		}
+
+		currentHeight := t.height(root)
+		if currentHeight != lastHeight {
+			lastHeight = currentHeight
+			fmt.Printf("\nLevel %v: ", totalHeight-currentHeight)
+		}
+		fmt.Printf("%d ", root.data)
+
+		if root.left != nil {
+			queue.PushBack(root.left)
+		}
+		if root.right != nil {
+			queue.PushBack(root.right)
+		}
+	}
+	fmt.Println()
+
+	return count, nil
+}
+
 func main() {
 	myTree := &Tree{}
 	for {
-		fmt.Println("\n\t0) Exit")
-		fmt.Println("\t1) Insert")
-		fmt.Println("\t2) Search")
-		fmt.Println("\t3) Display")
-		fmt.Println("\t4) Remove")
-		fmt.Println("\t5) Height")
+		fmt.Println("\nSelect an option from the menu:")
+		fmt.Println("| 0) Exit")
+		fmt.Println("| 1) Insert")
+		fmt.Println("| 2) Search")
+		fmt.Println("| 3) Display")
+		fmt.Println("| 4) Remove")
+		fmt.Println("| 5) Height")
 		scanner.Scan()
 		fmt.Println()
 
@@ -183,13 +225,34 @@ func main() {
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
 
-			if data, e := myTree.Search(input); e == nil {
-				fmt.Printf("%d was found in the tree.\n", data)
-			} else {
+			if data, e := myTree.Search(input); e != nil {
 				fmt.Println("Error encountered: ", e)
+			} else {
+				fmt.Printf("%d was found in the tree.\n", data)
 			}
 		case 3:
-			fmt.Printf("There are %d node(s) in the tree.\n", myTree.Display())
+			fmt.Println("Select a display type:")
+			fmt.Println("| 1) Preorder")
+			fmt.Println("| 2) Inorder")
+			fmt.Println("| 3) Postorder")
+			fmt.Println("| 4) Level Order")
+			scanner.Scan()
+			fmt.Println()
+
+			switch input, _ := strconv.Atoi(scanner.Text()); input {
+			case 1:
+				fmt.Printf("There are %d nodes in the tree.\n", myTree.Display())
+			case 2:
+			case 3:
+			case 4:
+				if data, e := myTree.LevelDisplay(); e != nil {
+					fmt.Println("Error encountered: ", e)
+				} else {
+					fmt.Printf("There are %d nodes in the tree.\n", data)
+				}
+			default:
+				fmt.Println("Please enter a valid input.")
+			}
 		case 4:
 			fmt.Println("Enter the value you would like to remove:")
 			scanner.Scan()
