@@ -123,24 +123,6 @@ func (t *Tree) search(root *node, data int) (int, error) {
 	return t.search(root.right, data)
 }
 
-// Display : Wrapper function for recursive display
-func (t *Tree) Display() int {
-	if t.root == nil {
-		return 0
-	}
-	return t.display(t.root, 0)
-}
-
-// display : Called by tree type. Recursive preorder display. Returns number of nodes.
-func (t *Tree) display(root *node, level int) int {
-	if root == nil {
-		return 0
-	}
-	retVal := t.display(root.left, level+1) + 1
-	fmt.Printf("Level %d: %d\n", level, root.data) // probably stupid and will remove
-	return t.display(root.right, level+1) + retVal
-}
-
 // Height : Public function returns the total height of the tree. Calls recursive height function on root.
 func (t *Tree) Height() float64 {
 	if t.root == nil {
@@ -157,44 +139,97 @@ func (t *Tree) height(root *node) float64 {
 	return math.Max(t.height(root.left), t.height(root.right)) + 1
 }
 
+// AscendingDisplay : Wrapper function for recursive ascending display
+func (t *Tree) AscendingDisplay() int {
+	if t.root == nil {
+		return 0
+	}
+	return t.ascending(t.root)
+}
+
+// ascending : Called by tree type. Recursive ascending display. Returns number of nodes.
+func (t *Tree) ascending(root *node) int {
+	if root == nil {
+		return 0
+	}
+	retVal := t.ascending(root.left) + 1
+	fmt.Printf("%d ", root.data)
+	return t.ascending(root.right) + retVal
+}
+
+// DescendingDisplay : Wrapper function for recursive descending display.
+func (t *Tree) DescendingDisplay() int {
+	if t.root == nil {
+		return 0
+	}
+	return t.descending(t.root)
+}
+
+// descending : Called by tree type. Recursive descending display. Returns number of nodes.
+func (t *Tree) descending(root *node) int {
+	if root == nil {
+		return 0
+	}
+	retVal := t.descending(root.right) + 1
+	fmt.Printf("%d ", root.data)
+	return t.descending(root.left) + retVal
+}
+
+// PreorderDisplay : Wrapper function for recursive preorder display.
+func (t *Tree) PreorderDisplay() int {
+	if t.root == nil {
+		return 0
+	}
+	return t.preorder(t.root)
+}
+
+// preorder : Called by tree type. Recursive preorder display. Returns number of nodes.
+func (t *Tree) preorder(root *node) int {
+	if root == nil {
+		return 0
+	}
+	fmt.Printf("%d ", root.data)
+	return t.preorder(root.left) + t.preorder(root.right) + 1
+}
+
 // LevelDisplay : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
-func (t *Tree) LevelDisplay() (int, error) {
-	count := 0
-	totalHeight := t.Height()
-	lastHeight := totalHeight
-	if lastHeight == 0 {
-		return 0, nil
+func (t *Tree) LevelDisplay() int {
+	if t.root == nil {
+		return 0
 	}
 
-	queue := list.New()
-	queue.PushBack(t.root)
+	type pair struct {
+		first, second interface{}
+	}
 
-	fmt.Printf("Level %v: ", totalHeight-lastHeight)
+	count := 0
+	lastLevel := 1
+	queue := list.New()
+	queue.PushBack(pair{t.root, 1})
+
+	fmt.Printf("Level %v: ", 1)
 	for queue.Len() != 0 {
 		count++
-		element := queue.Remove(queue.Front())
-		root, ok := element.(*node)
-		if !ok {
-			return 0, errors.New("(*node) type assertion failed")
-		}
+		nlPair, _ := (queue.Remove(queue.Front())).(pair) // nl = node-level
+		root, _ := nlPair.first.(*node)
+		level, _ := nlPair.second.(int)
 
-		currentHeight := t.height(root)
-		if currentHeight != lastHeight {
-			lastHeight = currentHeight
-			fmt.Printf("\nLevel %v: ", totalHeight-currentHeight)
+		if lastLevel != level {
+			lastLevel = level
+			fmt.Printf("\nLevel %v: ", level)
 		}
 		fmt.Printf("%d ", root.data)
 
 		if root.left != nil {
-			queue.PushBack(root.left)
+			queue.PushBack(pair{root.left, level + 1})
 		}
 		if root.right != nil {
-			queue.PushBack(root.right)
+			queue.PushBack(pair{root.right, level + 1})
 		}
 	}
 	fmt.Println()
 
-	return count, nil
+	return count
 }
 
 func main() {
@@ -232,24 +267,22 @@ func main() {
 			}
 		case 3:
 			fmt.Println("Select a display type:")
-			fmt.Println("| 1) Preorder")
-			fmt.Println("| 2) Inorder")
-			fmt.Println("| 3) Postorder")
+			fmt.Println("| 1) Ascending")
+			fmt.Println("| 2) Descending")
+			fmt.Println("| 3) Preorder")
 			fmt.Println("| 4) Level Order")
 			scanner.Scan()
 			fmt.Println()
 
 			switch input, _ := strconv.Atoi(scanner.Text()); input {
 			case 1:
-				fmt.Printf("There are %d nodes in the tree.\n", myTree.Display())
+				fmt.Printf("There are %d nodes in the tree.\n", myTree.AscendingDisplay())
 			case 2:
+				fmt.Printf("There are %d nodes in the tree.\n", myTree.DescendingDisplay())
 			case 3:
+				fmt.Printf("There are %d nodes in the tree.\n", myTree.PreorderDisplay())
 			case 4:
-				if data, e := myTree.LevelDisplay(); e != nil {
-					fmt.Println("Error encountered: ", e)
-				} else {
-					fmt.Printf("There are %d nodes in the tree.\n", data)
-				}
+				fmt.Printf("There are %d nodes in the tree.\n", myTree.LevelDisplay())
 			default:
 				fmt.Println("Please enter a valid input.")
 			}
