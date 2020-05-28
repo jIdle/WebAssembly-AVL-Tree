@@ -15,7 +15,7 @@ import (
 var scanner = bufio.NewScanner(os.Stdin)
 
 // node : Container for user data
-type node struct { // Should not be exported. Only BST data structure should have knowledge of a node.
+type node struct { // Should not be exported. Only tree data structure should have knowledge of a node.
 	data    int
 	height  float64
 	balance float64
@@ -23,6 +23,7 @@ type node struct { // Should not be exported. Only BST data structure should hav
 	right   *node
 }
 
+// setBalance : Called by node type. The node will ask its children for height values to compute its own balance factor.
 func (n *node) setBalance() {
 	if n.left == nil && n.right == nil {
 		n.balance = 0
@@ -40,16 +41,51 @@ type Tree struct {
 	root *node
 }
 
+// rotateLeft : Called by Tree type. Given a parent and child node, a left rotation is performed. The new parent node is returned.
 func (t *Tree) rotateLeft(parent *node, child *node) *node {
 	parent.right = child.left
 	child.left = parent
+
+	parent.height = t.height(parent)
+	parent.setBalance()
+	child.height = t.height(child)
+	child.setBalance()
+
 	return child
 }
 
+// rotateRight : Called by Tree type. Given a parent and child node, a right rotation is performed. The new parent node is returned.
 func (t *Tree) rotateRight(parent *node, child *node) *node {
 	parent.left = child.right
 	child.right = parent
+
+	parent.height = t.height(parent)
+	parent.setBalance()
+	child.height = t.height(child)
+	child.setBalance()
+
 	return child
+}
+
+// checkBalance : Called by Tree type. Correctly sets the given node's height and balance, then rotates if necessary. New parent node is returned.
+func (t *Tree) checkBalance(root *node) *node {
+	root.height = t.height(root)
+	root.setBalance()
+	//fmt.Printf("Node: %v | Height: %v | Balance: %v\n", root.data, root.height, root.balance)
+
+	if root.balance < -1 { // right rotation
+		if root.right.balance > 0 {
+			root.right = t.rotateRight(root.right, root.right.left)
+		}
+		root = t.rotateLeft(root, root.right)
+	} else if root.balance > 1 { // left rotation
+		if root.left.balance < 0 {
+			root.left = t.rotateLeft(root.left, root.left.right)
+		}
+		root = t.rotateRight(root, root.left)
+	}
+
+	return root
 }
 
 // Insert : Wrapper function for node insert.
@@ -70,19 +106,8 @@ func (t *Tree) insert(root *node, data int) *node {
 	} else if data >= root.data {
 		root.right = t.insert(root.right, data)
 	}
-	root.height = t.height(root)
-	root.setBalance()
 
-	// possibly defer return root?
-	return root
-	// either way no returning quite yet
-	// now we check whether the balance factor is within the correct range
-	// if it isn't, then we must go through a series of if statements which determines
-	// which side we should balance/rotate.
-	// I think the main idea is that if negative, rotate nodes on right side
-	// if positive, rotate nodes on left side
-	// then check subtree balance
-	// what we do to subtree is written in the cases in that notepad file
+	return t.checkBalance(root)
 }
 
 // Remove : Wrapper function for Tree recursive remove.
@@ -124,9 +149,7 @@ func (t *Tree) remove(root *node, data int) (*node, error) {
 		root.right, err = t.remove(root.right, data)
 	}
 
-	root.height = t.height(root)
-	root.setBalance()
-	return root, err
+	return t.checkBalance(root), err
 }
 
 // findIOS : Helper function for remove to search and return the In-Order Successor
@@ -138,7 +161,7 @@ func (t *Tree) findIOS(root *node) (*node, *node) {
 		return root, ios
 	}
 	root.left, ios = t.findIOS(root.left)
-	return root, ios
+	return t.checkBalance(root), ios
 }
 
 // Search : Wrapper function for Tree recursive search.
