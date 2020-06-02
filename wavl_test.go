@@ -7,14 +7,57 @@ type TestData struct {
 	purpose string
 }
 
+func Test_Tree_Search(t *testing.T) {
+	testTree := &Tree{root: nil}
+	tests := []TestData{
+		{[]int{4}, "Retrieve data at root"},
+		{[]int{2}, "Retrieve left child"},
+		{[]int{6}, "Retrieve right child"},
+		{[]int{3}, "Retrieve at left subtree"},
+		{[]int{5}, "Retrieve at right subtree"},
+	}
+
+	if _, e := testTree.Search(0); e != nil {
+		t.Logf("'Retrieve from empty tree': Returned error\t(PASSED)")
+	} else {
+		t.Errorf("'Retrieve from empty tree': Returned error\t(FAILED)")
+	}
+
+	testTree.root = &node{data: 4, height: 3, balance: 0, left: nil, right: nil}
+	testTree.root.left = &node{data: 2, height: 2, balance: -1, left: nil, right: nil}
+	testTree.root.left.right = &node{data: 3, height: 1, balance: 0, left: nil, right: nil}
+	testTree.root.right = &node{data: 6, height: 2, balance: 1, left: nil, right: nil}
+	testTree.root.right.left = &node{data: 5, height: 1, balance: 0, left: nil, right: nil}
+
+	for i := 0; i < 5; i++ {
+		if data, e := testTree.Search(tests[i].input[0]); e == nil {
+			t.Logf("'%v': Value found \t(PASSED)", tests[i].purpose)
+			if data == tests[i].input[0] {
+				t.Logf("'%v': Correct value\t(PASSED)", tests[i].purpose)
+			} else {
+				t.Errorf("'%v': Correct value\t(FAILED)", tests[i].purpose)
+			}
+		} else {
+			t.Errorf("'%v': Value found \t(FAILED)", tests[i].purpose)
+		}
+	}
+
+	if _, e := testTree.Search(100); e != nil {
+		t.Logf("'Value not stored': Returned error\t\t(PASSED)")
+	} else {
+		t.Errorf("'Value not stored': Returned error\t\t(FAILED)")
+	}
+
+}
+
 func Test_Tree_Remove(t *testing.T) {
 	testTree := &Tree{root: nil}
 	tests := []TestData{
 		{[]int{5}, "Remove last node"},
 		{[]int{5}, "Remove w/ left subtree"},
-		{[]int{4}, "Remove from left subtree"},
+		{[]int{4}, "Remove at left subtree"},
 		{[]int{5}, "Remove w/ right subtree"},
-		{[]int{6}, "Remove from right subtree"},
+		{[]int{6}, "Remove at right subtree"},
 		{[]int{5}, "Remove & replace w/ IOS"},
 	}
 
