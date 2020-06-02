@@ -99,6 +99,80 @@ func Test_Tree_Remove(t *testing.T) {
 	}
 }
 
+func Test_Tree_RemoveRotation(t *testing.T) {
+	testTree := &Tree{root: nil}
+	tests := []TestData{
+		{[]int{1}, "Single Left rotation"},
+		{[]int{4}, "Single Right rotation"},
+		{[]int{4}, "Left-Right rotation"},
+		{[]int{1}, "Right-Left rotation"},
+	}
+
+	testTree.root = &node{data: 2, height: 3, balance: -1, left: nil, right: nil}
+	testTree.root.left = &node{data: 1, height: 1, balance: 0, left: nil, right: nil}
+	testTree.root.right = &node{data: 3, height: 2, balance: -1, left: nil, right: nil}
+	testTree.root.right.right = &node{data: 4, height: 1, balance: 0, left: nil, right: nil}
+	testTree.Remove(tests[0].input[0])
+	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.right.right == nil {
+		t.Logf("'%v': Deletion & rotation occur\t\t(PASSED)", tests[0].purpose)
+		if testTree.root.data == 3 && testTree.root.left.data == 2 && testTree.root.right.data == 4 {
+			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[0].purpose)
+		} else {
+			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[0].purpose)
+		}
+	} else {
+		t.Errorf("'%v': Deletion & rotation occur\t\t(FAILED)", tests[0].purpose)
+	}
+
+	testTree.root = &node{data: 3, height: 3, balance: 1, left: nil, right: nil}
+	testTree.root.left = &node{data: 2, height: 2, balance: 1, left: nil, right: nil}
+	testTree.root.right = &node{data: 4, height: 1, balance: 0, left: nil, right: nil}
+	testTree.root.left.left = &node{data: 1, height: 1, balance: 0, left: nil, right: nil}
+	testTree.Remove(tests[1].input[0])
+	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.left.left == nil {
+		t.Logf("'%v': Deletion & rotation occur\t(PASSED)", tests[1].purpose)
+		if testTree.root.data == 2 && testTree.root.left.data == 1 && testTree.root.right.data == 3 {
+			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[1].purpose)
+		} else {
+			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[1].purpose)
+		}
+	} else {
+		t.Errorf("'%v': Deletion & rotation occur\t(FAILED)", tests[1].purpose)
+	}
+
+	testTree.root = &node{data: 3, height: 3, balance: 1, left: nil, right: nil}
+	testTree.root.left = &node{data: 1, height: 2, balance: -1, left: nil, right: nil}
+	testTree.root.right = &node{data: 4, height: 1, balance: 0, left: nil, right: nil}
+	testTree.root.left.right = &node{data: 2, height: 1, balance: 0, left: nil, right: nil}
+	testTree.Remove(tests[2].input[0])
+	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.left.right == nil {
+		t.Logf("'%v': Deletion & rotation occur\t\t(PASSED)", tests[2].purpose)
+		if testTree.root.data == 2 && testTree.root.left.data == 1 && testTree.root.right.data == 3 {
+			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[2].purpose)
+		} else {
+			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[2].purpose)
+		}
+	} else {
+		t.Errorf("'%v': Deletion & rotation occur\t\t(FAILED)", tests[2].purpose)
+	}
+
+	testTree.root = &node{data: 2, height: 3, balance: -1, left: nil, right: nil}
+	testTree.root.left = &node{data: 1, height: 1, balance: 0, left: nil, right: nil}
+	testTree.root.right = &node{data: 4, height: 2, balance: 1, left: nil, right: nil}
+	testTree.root.right.left = &node{data: 3, height: 1, balance: 0, left: nil, right: nil}
+	testTree.Remove(tests[3].input[0])
+	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.right.left == nil {
+		t.Logf("'%v': Deletion & rotation occur\t\t(PASSED)", tests[3].purpose)
+		if testTree.root.data == 3 && testTree.root.left.data == 2 && testTree.root.right.data == 4 {
+			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[3].purpose)
+		} else {
+			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[3].purpose)
+		}
+	} else {
+		t.Errorf("'%v': Deletion & rotation occur\t\t(FAILED)", tests[3].purpose)
+	}
+}
+
 func Test_Tree_Insert(t *testing.T) {
 	testTree := &Tree{root: nil}
 	tests := []TestData{
