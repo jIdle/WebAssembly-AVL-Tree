@@ -1,6 +1,5 @@
 # WAVL Tree
 
-This is a work-in-progress. I am using the project as an opportunity to learn Golang better.
-
-All BST functionality has been implemented and tested successfully.
-WAVL insertion is identical to AVL insertion, therefore the next step in this project is to implement AVL insertion using rank differences rather than rank = height.
+I am using the project as an opportunity to learn Golang better as well as a way to better understand AVL trees before moving on to the WAVL implementation.
+The AVL tree has been completed and tested. All basic BST functionality is there and working. All AVL functionality is there and working.
+The only changes left to be made are performance optimizations to the Insert and Remove functions. Though these changes will not be made until some later time.

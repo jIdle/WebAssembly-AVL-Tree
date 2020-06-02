@@ -1,5 +1,8 @@
 package main
 
+// TODO: Optimize height calculation per node during insertion and removal.
+//		 Inneficient to call height function for each node along path.
+
 import (
 	"bufio"
 	"container/list"
@@ -12,11 +15,25 @@ import (
 var scanner = bufio.NewScanner(os.Stdin)
 
 // node : Container for user data
-type node struct { // Should not be exported. Only BST data structure should have knowledge of a node.
-	data  int
-	rank  int
-	left  *node
-	right *node
+type node struct { // Should not be exported. Only tree data structure should have knowledge of a node.
+	data    int
+	height  float64
+	balance float64
+	left    *node
+	right   *node
+}
+
+// setBalance : Called by node type. The node will ask its children for height values to compute its own balance factor.
+func (n *node) setBalance() {
+	if n.left == nil && n.right == nil {
+		n.balance = 0
+	} else if n.left == nil {
+		n.balance = -n.right.height
+	} else if n.right == nil {
+		n.balance = n.left.height
+	} else {
+		n.balance = n.left.height - n.right.height
+	}
 }
 
 // Tree : Container for root node.
@@ -24,10 +41,57 @@ type Tree struct {
 	root *node
 }
 
+// rotateLeft : Called by Tree type. Given a parent and child node, a left rotation is performed. The new parent node is returned.
+func (t *Tree) rotateLeft(parent *node, child *node) *node {
+	parent.right = child.left
+	child.left = parent
+
+	parent.height = t.height(parent)
+	parent.setBalance()
+	child.height = t.height(child)
+	child.setBalance()
+
+	return child
+}
+
+// rotateRight : Called by Tree type. Given a parent and child node, a right rotation is performed. The new parent node is returned.
+func (t *Tree) rotateRight(parent *node, child *node) *node {
+	parent.left = child.right
+	child.right = parent
+
+	parent.height = t.height(parent)
+	parent.setBalance()
+	child.height = t.height(child)
+	child.setBalance()
+
+	return child
+}
+
+// checkBalance : Called by Tree type. Correctly sets the given node's height and balance, then rotates if necessary. New parent node is returned.
+func (t *Tree) checkBalance(root *node) *node {
+	root.height = t.height(root)
+	root.setBalance()
+	//fmt.Printf("Node: %v | Height: %v | Balance: %v\n", root.data, root.height, root.balance)
+
+	if root.balance < -1 { // right rotation
+		if root.right.balance > 0 {
+			root.right = t.rotateRight(root.right, root.right.left)
+		}
+		root = t.rotateLeft(root, root.right)
+	} else if root.balance > 1 { // left rotation
+		if root.left.balance < 0 {
+			root.left = t.rotateLeft(root.left, root.left.right)
+		}
+		root = t.rotateRight(root, root.left)
+	}
+
+	return root
+}
+
 // Insert : Wrapper function for node insert.
 func (t *Tree) Insert(data int) {
 	if t.root == nil {
-		t.root = &node{data: data}
+		t.root = &node{data: data, height: 1, balance: 0, left: nil, right: nil}
 		return
 	}
 	t.root = t.insert(t.root, data)
@@ -36,13 +100,14 @@ func (t *Tree) Insert(data int) {
 // insert : Called by Tree type. Recursive binary insertion. No return, should always insert.
 func (t *Tree) insert(root *node, data int) *node {
 	if root == nil {
-		return &node{data: data}
+		return &node{data: data, height: 1, balance: 0, left: nil, right: nil}
 	} else if data < root.data {
 		root.left = t.insert(root.left, data)
 	} else if data >= root.data {
 		root.right = t.insert(root.right, data)
 	}
-	return root
+
+	return t.checkBalance(root)
 }
 
 // Remove : Wrapper function for Tree recursive remove.
@@ -80,10 +145,11 @@ func (t *Tree) remove(root *node, data int) (*node, error) {
 		return root, nil
 	} else if data < root.data {
 		root.left, err = t.remove(root.left, data)
-		return root, err
+	} else if data > root.data {
+		root.right, err = t.remove(root.right, data)
 	}
-	root.right, err = t.remove(root.right, data)
-	return root, err
+
+	return t.checkBalance(root), err
 }
 
 // findIOS : Helper function for remove to search and return the In-Order Successor
@@ -95,7 +161,7 @@ func (t *Tree) findIOS(root *node) (*node, *node) {
 		return root, ios
 	}
 	root.left, ios = t.findIOS(root.left)
-	return root, ios
+	return t.checkBalance(root), ios
 }
 
 // Search : Wrapper function for Tree recursive search.
@@ -191,7 +257,7 @@ func (t *Tree) preorder(root *node) int {
 }
 
 // LevelDisplay : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
-func (t *Tree) LevelDisplay() int {
+func (t *Tree) LevelDisplay(showBalance bool) int {
 	if t.root == nil {
 		return 0
 	}
@@ -216,7 +282,11 @@ func (t *Tree) LevelDisplay() int {
 			lastLevel = level
 			fmt.Printf("\nLevel %v: ", level)
 		}
-		fmt.Printf("%d ", root.data)
+		if showBalance {
+			fmt.Printf("%d|%v ", root.data, root.balance)
+		} else {
+			fmt.Printf("%d ", root.data)
+		}
 
 		if root.left != nil {
 			queue.PushBack(pair{root.left, level + 1})

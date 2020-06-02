@@ -57,7 +57,8 @@ func main() {
 			case 3:
 				fmt.Printf("There are %d nodes in the tree.\n", myTree.PreorderDisplay())
 			case 4:
-				fmt.Printf("There are %d nodes in the tree.\n", myTree.LevelDisplay())
+				showBalance := true
+				fmt.Printf("There are %d nodes in the tree.\n", myTree.LevelDisplay(showBalance))
 			default:
 				fmt.Println("Please enter a valid input.")
 			}
