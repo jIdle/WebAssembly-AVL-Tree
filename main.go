@@ -51,11 +51,11 @@ func main() {
 
 			switch input, _ := strconv.Atoi(scanner.Text()); input {
 			case 1:
-				fmt.Printf("There are %d nodes in the tree.\n", myTree.AscendingDisplay())
+				fmt.Printf("\nThere are %d nodes in the tree.\n", myTree.AscendingDisplay())
 			case 2:
-				fmt.Printf("There are %d nodes in the tree.\n", myTree.DescendingDisplay())
+				fmt.Printf("\nThere are %d nodes in the tree.\n", myTree.DescendingDisplay())
 			case 3:
-				fmt.Printf("There are %d nodes in the tree.\n", myTree.PreorderDisplay())
+				fmt.Printf("\nThere are %d nodes in the tree.\n", myTree.PreorderDisplay())
 			case 4:
 				showBalance := true
 				fmt.Printf("There are %d nodes in the tree.\n", myTree.LevelDisplay(showBalance))

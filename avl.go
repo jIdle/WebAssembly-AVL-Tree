@@ -1,8 +1,5 @@
 package main
 
-// TODO: Optimize height calculation per node during insertion and removal.
-//		 Inneficient to call height function for each node along path.
-
 import (
 	"bufio"
 	"container/list"
@@ -36,9 +33,37 @@ func (n *node) setBalance() {
 	}
 }
 
+func (n *node) setHeight() {
+	if n.left == nil && n.right == nil {
+		n.height = 1
+	} else if n.left == nil {
+		n.height = n.right.height + 1
+	} else if n.right == nil {
+		n.height = n.left.height + 1
+	} else {
+		n.height = math.Max(n.left.height, n.right.height) + 1
+	}
+}
+
 // Tree : Container for root node.
 type Tree struct {
 	root *node
+}
+
+// Height : Public function returns the total height of the tree. Calls recursive height function on root.
+func (t *Tree) Height() float64 {
+	if t.root == nil {
+		return 0
+	}
+	return t.height(t.root)
+}
+
+// height : Private recursive function, returns height of specified node.
+func (t *Tree) height(root *node) float64 {
+	if root == nil {
+		return 0
+	}
+	return math.Max(t.height(root.left), t.height(root.right)) + 1
 }
 
 // rotateLeft : Called by Tree type. Given a parent and child node, a left rotation is performed. The new parent node is returned.
@@ -46,9 +71,9 @@ func (t *Tree) rotateLeft(parent *node, child *node) *node {
 	parent.right = child.left
 	child.left = parent
 
-	parent.height = t.height(parent)
+	parent.setHeight()
 	parent.setBalance()
-	child.height = t.height(child)
+	child.setHeight()
 	child.setBalance()
 
 	return child
@@ -59,9 +84,9 @@ func (t *Tree) rotateRight(parent *node, child *node) *node {
 	parent.left = child.right
 	child.right = parent
 
-	parent.height = t.height(parent)
+	parent.setHeight()
 	parent.setBalance()
-	child.height = t.height(child)
+	child.setHeight()
 	child.setBalance()
 
 	return child
@@ -69,7 +94,7 @@ func (t *Tree) rotateRight(parent *node, child *node) *node {
 
 // checkBalance : Called by Tree type. Correctly sets the given node's height and balance, then rotates if necessary. New parent node is returned.
 func (t *Tree) checkBalance(root *node) *node {
-	root.height = t.height(root)
+	root.setHeight()
 	root.setBalance()
 	//fmt.Printf("Node: %v | Height: %v | Balance: %v\n", root.data, root.height, root.balance)
 
@@ -185,22 +210,6 @@ func (t *Tree) search(root *node, data int) (int, error) {
 		return t.search(root.left, data)
 	}
 	return t.search(root.right, data)
-}
-
-// Height : Public function returns the total height of the tree. Calls recursive height function on root.
-func (t *Tree) Height() float64 {
-	if t.root == nil {
-		return 0
-	}
-	return t.height(t.root)
-}
-
-// height : Private recursive function, returns height of specified node.
-func (t *Tree) height(root *node) float64 {
-	if root == nil {
-		return 0
-	}
-	return math.Max(t.height(root.left), t.height(root.right)) + 1
 }
 
 // AscendingDisplay : Wrapper function for recursive ascending display

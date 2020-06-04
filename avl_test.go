@@ -31,14 +31,14 @@ func Test_Tree_Search(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		if data, e := testTree.Search(tests[i].input[0]); e == nil {
-			t.Logf("'%v': Value found \t(PASSED)", tests[i].purpose)
+			t.Logf("'%v': Value found  \t(PASSED)", tests[i].purpose)
 			if data == tests[i].input[0] {
 				t.Logf("'%v': Correct value\t(PASSED)", tests[i].purpose)
 			} else {
 				t.Errorf("'%v': Correct value\t(FAILED)", tests[i].purpose)
 			}
 		} else {
-			t.Errorf("'%v': Value found \t(FAILED)", tests[i].purpose)
+			t.Errorf("'%v': Value found  \t(FAILED)", tests[i].purpose)
 		}
 	}
 
@@ -173,14 +173,14 @@ func Test_Tree_RemoveRotation(t *testing.T) {
 	testTree.root.left.left = &node{data: 1, height: 1, balance: 0, left: nil, right: nil}
 	testTree.Remove(tests[1].input[0])
 	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.left.left == nil {
-		t.Logf("'%v': Deletion & rotation occur\t(PASSED)", tests[1].purpose)
+		t.Logf("'%v': Deletion & rotation occur \t(PASSED)", tests[1].purpose)
 		if testTree.root.data == 2 && testTree.root.left.data == 1 && testTree.root.right.data == 3 {
 			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[1].purpose)
 		} else {
 			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[1].purpose)
 		}
 	} else {
-		t.Errorf("'%v': Deletion & rotation occur\t(FAILED)", tests[1].purpose)
+		t.Errorf("'%v': Deletion & rotation occur \t(FAILED)", tests[1].purpose)
 	}
 
 	testTree.root = &node{data: 3, height: 3, balance: 1, left: nil, right: nil}
@@ -191,9 +191,9 @@ func Test_Tree_RemoveRotation(t *testing.T) {
 	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.left.right == nil {
 		t.Logf("'%v': Deletion & rotation occur\t\t(PASSED)", tests[2].purpose)
 		if testTree.root.data == 2 && testTree.root.left.data == 1 && testTree.root.right.data == 3 {
-			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[2].purpose)
+			t.Logf("'%v': Correct deletion & rotation \t(PASSED)", tests[2].purpose)
 		} else {
-			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[2].purpose)
+			t.Errorf("'%v': Correct deletion & rotation \t(FAILED)", tests[2].purpose)
 		}
 	} else {
 		t.Errorf("'%v': Deletion & rotation occur\t\t(FAILED)", tests[2].purpose)
@@ -207,9 +207,9 @@ func Test_Tree_RemoveRotation(t *testing.T) {
 	if testTree.root != nil && testTree.root.left != nil && testTree.root.right != nil && testTree.root.right.left == nil {
 		t.Logf("'%v': Deletion & rotation occur\t\t(PASSED)", tests[3].purpose)
 		if testTree.root.data == 3 && testTree.root.left.data == 2 && testTree.root.right.data == 4 {
-			t.Logf("'%v': Correct deletion & rotation\t(PASSED)", tests[3].purpose)
+			t.Logf("'%v': Correct deletion & rotation \t(PASSED)", tests[3].purpose)
 		} else {
-			t.Errorf("'%v': Correct deletion & rotation\t(FAILED)", tests[3].purpose)
+			t.Errorf("'%v': Correct deletion & rotation \t(FAILED)", tests[3].purpose)
 		}
 	} else {
 		t.Errorf("'%v': Deletion & rotation occur\t\t(FAILED)", tests[3].purpose)
