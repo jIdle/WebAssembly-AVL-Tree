@@ -38,7 +38,7 @@ func main() {
 			if data, e := myTree.Search(input); e != nil {
 				fmt.Println("Error encountered: ", e)
 			} else {
-				fmt.Printf("%d was found in the tree.\n", data)
+				fmt.Printf("%v was found in the tree.\n", data)
 			}
 		case 3:
 			fmt.Println("Select a display type:")

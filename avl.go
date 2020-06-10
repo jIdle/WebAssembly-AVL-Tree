@@ -7,13 +7,57 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 )
 
 var scanner = bufio.NewScanner(os.Stdin)
 
+// Interface : Allows comparison between keys in generic form.
+type Interface interface {
+	Less(toCompare Interface) bool
+}
+
+type Int int
+type Float float64
+type String string
+
+// Less : Assume a, b are Int. Less returns true if a < b.
+func (a Int) Less(b Interface) bool {
+	return a < b.(Int)
+}
+
+// Less : Assume a, b are Float64. Less returns true if a < b.
+func (a Float) Less(b Interface) bool {
+	return a < b.(Float)
+}
+
+// Less : Assume a, b are String. Less returns true if a < b.
+func (a String) Less(b Interface) bool {
+	return a < b.(String)
+}
+
+func checkType(toConvert interface{}) Interface {
+	switch t := toConvert.(type) {
+	case int:
+		return Int(t)
+	case Int:
+		return t
+	case float64:
+		return Float(t)
+	case Float:
+		return t
+	case string:
+		return String(t)
+	case String:
+		return t
+	default:
+		panic(fmt.Sprintf("Could not find a compatible type conversion for %v\n", reflect.TypeOf(t).Name()))
+	}
+}
+
 // node : Container for user data
 type node struct { // Should not be exported. Only tree data structure should have knowledge of a node.
-	data    int
+	data    Interface
 	height  float64
 	balance float64
 	left    *node
@@ -114,7 +158,8 @@ func (t *Tree) checkBalance(root *node) *node {
 }
 
 // Insert : Wrapper function for node insert.
-func (t *Tree) Insert(data int) {
+func (t *Tree) Insert(basicData interface{}) {
+	data := checkType(basicData)
 	if t.root == nil {
 		t.root = &node{data: data, height: 1, balance: 0, left: nil, right: nil}
 		return
@@ -123,12 +168,12 @@ func (t *Tree) Insert(data int) {
 }
 
 // insert : Called by Tree type. Recursive binary insertion. No return, should always insert.
-func (t *Tree) insert(root *node, data int) *node {
+func (t *Tree) insert(root *node, data Interface) *node {
 	if root == nil {
 		return &node{data: data, height: 1, balance: 0, left: nil, right: nil}
-	} else if data < root.data {
+	} else if data.Less(root.data) {
 		root.left = t.insert(root.left, data)
-	} else if data >= root.data {
+	} else if !data.Less(root.data) {
 		root.right = t.insert(root.right, data)
 	}
 
@@ -136,7 +181,8 @@ func (t *Tree) insert(root *node, data int) *node {
 }
 
 // Remove : Wrapper function for Tree recursive remove.
-func (t *Tree) Remove(data int) error {
+func (t *Tree) Remove(basicData interface{}) error {
+	data := checkType(basicData)
 	if t.root == nil {
 		return errors.New("no data to remove in empty tree")
 	}
@@ -146,14 +192,18 @@ func (t *Tree) Remove(data int) error {
 }
 
 // remove : Called by Tree type. Recursive binary removal. Returns error if applicable.
-func (t *Tree) remove(root *node, data int) (*node, error) {
+func (t *Tree) remove(root *node, data Interface) (*node, error) {
 	var err error
 	if root == nil {
 		err = errors.New("could not find specified value")
 		return nil, err
 	}
 
-	if data == root.data {
+	if data.Less(root.data) {
+		root.left, err = t.remove(root.left, data)
+	} else if root.data.Less(data) {
+		root.right, err = t.remove(root.right, data)
+	} else {
 		if root.left == nil && root.right == nil {
 			root = nil
 		} else if root.left == nil {
@@ -168,10 +218,6 @@ func (t *Tree) remove(root *node, data int) (*node, error) {
 			root = ios
 		}
 		return root, nil
-	} else if data < root.data {
-		root.left, err = t.remove(root.left, data)
-	} else if data > root.data {
-		root.right, err = t.remove(root.right, data)
 	}
 
 	return t.checkBalance(root), err
@@ -190,26 +236,27 @@ func (t *Tree) findIOS(root *node) (*node, *node) {
 }
 
 // Search : Wrapper function for Tree recursive search.
-func (t *Tree) Search(data int) (int, error) {
+func (t *Tree) Search(basicData interface{}) (Interface, error) {
+	data := checkType(basicData)
 	if t.root == nil {
-		return 0, errors.New("no data to search in empty tree")
+		return nil, errors.New("no data to search in empty tree")
 	}
 	return t.search(t.root, data)
 }
 
 // search : Called by Tree type. Recursive binary search. Returns matching data.
-func (t *Tree) search(root *node, data int) (int, error) {
-	// "data" in this case may not always be an integer, could be a whole object
-	// but we match for the identifier/name
+func (t *Tree) search(root *node, data Interface) (Interface, error) {
 	if root == nil {
-		return 0, errors.New("could not find specified value")
+		return nil, errors.New("could not find specified value")
 	}
-	if data == root.data {
-		return root.data, nil
-	} else if data < root.data {
+
+	if data.Less(root.data) {
 		return t.search(root.left, data)
+	} else if root.data.Less(data) {
+		return t.search(root.right, data)
+	} else {
+		return root.data, nil
 	}
-	return t.search(root.right, data)
 }
 
 // AscendingDisplay : Wrapper function for recursive ascending display
