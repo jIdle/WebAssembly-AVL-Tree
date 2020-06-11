@@ -10,6 +10,3 @@ I am using this project as an opportunity to learn Golang better, as well as a w
 Next up:
 1. Add as many types as reasonably possible to the list of types which implement Less. Should make the tree more flexible.
 2. Fix the test code. While it gets the job done, it's the first test code I'v ever written so it's pretty bad.
-
-Bugs:
-* Rotation breaks same value ordering. Fixing this is my top priority currently.
