@@ -1,7 +1,8 @@
-// WAVL Tree Implementation
+// AVL Tree Implementation
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 
 func main() {
 	myTree := &Tree{}
+	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Println("\nSelect an option from the menu:")
 		fmt.Println("| 0) Exit")
@@ -35,7 +37,7 @@ func main() {
 			scanner.Scan()
 			input, _ = strconv.Atoi(scanner.Text())
 
-			if data, e := myTree.Search(input); e != nil {
+			if data, e := myTree.Retrieve(input); e != nil {
 				fmt.Println("Error encountered: ", e)
 			} else {
 				fmt.Printf("%v was found in the tree.\n", data)
