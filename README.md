@@ -8,6 +8,8 @@ I am using this project as an opportunity to learn Golang better, as well as a w
 * The data structure allows for generic data types with the condition that the data type implements the **Less** function. This condition is what enables the tree to compare and sort without knowing the underlying type of the data it stores.
 
 Next up:
-1. Split the avl.go and avl_test.go files into smaller files which encompass specific functions, or at most sets of functions that share a similar purpose/goal. This should make the test file less of a slog to read through.
-2. Add as many types as reasonably possible to the list of types which implement Less. Should make the tree more flexible.
-3. Fix the test code. While it gets the job done, it's the first test code I'v ever written so it's pretty bad.
+1. Add as many types as reasonably possible to the list of types which implement Less. Should make the tree more flexible.
+2. Fix the test code. While it gets the job done, it's the first test code I'v ever written so it's pretty bad.
+
+Bugs:
+* Rotation breaks same value ordering. Fixing this is my top priority currently.
