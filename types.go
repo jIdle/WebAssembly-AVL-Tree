@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"syscall/js"
 )
 
 // Interface : Allows comparison between keys in generic form.
@@ -10,9 +11,18 @@ type Interface interface {
 	Less(toCompare Interface) bool
 }
 
-// Tree : Container for root node.
-type Tree struct {
+// AVL : Container for root node.
+type AVL struct {
 	root *node
+}
+
+// NewAVL : Returns a new and empty AVL tree. May initialize JS wrapper functions.
+func NewAVL() *AVL {
+	tree := &AVL{root: nil}
+	js.Global().Set("Insert", js.FuncOf(tree.InsertJS))
+	js.Global().Set("Remove", js.FuncOf(tree.RemoveJS))
+	js.Global().Set("Retrieve", js.FuncOf(tree.RetrieveJS))
+	js.Global().Set("Display", js.FuncOf(tree.DisplayJS))
 }
 
 // node : Container for user data
@@ -27,6 +37,7 @@ type node struct {
 type Int int
 type Float float64
 type String string
+type Object js.Value
 
 // Less : Assume a, b are Int. Less returns true if a < b.
 func (a Int) Less(b Interface) bool {
@@ -43,22 +54,39 @@ func (a String) Less(b Interface) bool {
 	return a < b.(String)
 }
 
-// Remove custom types (e.g. Int, Float, String) after the test code has been fixed to not be absolute garbage.
+// Less : Assume a, b are Object. Less returns true if a < b.
+func (a Object) Less(b Interface) bool {
+	return js.Value(a).Call("Less", (js.Value(b.(Object)))).Bool()
+}
+
 func checkType(toConvert interface{}) Interface {
-	switch t := toConvert.(type) {
+	switch goVal := toConvert.(type) {
 	case int:
-		return Int(t)
-	case Int:
-		return t
+		return Int(goVal)
 	case float64:
-		return Float(t)
-	case Float:
-		return t
+		return Float(goVal)
 	case string:
-		return String(t)
-	case String:
-		return t
+		return String(goVal)
+	case js.Value:
+		switch jsType := goVal.Type().String(); jsType {
+		case "number":
+			Number := js.Global().Get("Number")
+			if Number.Call("isInteger", goVal).Bool() {
+				return Int(goVal.Int())
+			} else {
+				return Float(goVal.Float())
+			}
+		case "string":
+			return String(goVal.String())
+		case "object":
+			return Object(goVal)
+		default:
+			panic(fmt.Sprintf("Input type can not be ordered.\n"))
+		}
 	default:
-		panic(fmt.Sprintf("Could not find a compatible type conversion for %v\n", reflect.TypeOf(t).Name()))
+		if v, ok := goVal.(Interface); ok {
+			return v
+		}
+		panic(fmt.Sprintf("Could not find a compatible type conversion for %v\n", reflect.TypeOf(goVal).Name()))
 	}
 }

@@ -28,7 +28,7 @@ func (n *node) setHeight() {
 }
 
 // Height : Public function returns the total height of the tree. Calls recursive height function on root.
-func (t *Tree) Height() float64 {
+func (t *AVL) Height() float64 {
 	if t.root == nil {
 		return 0
 	}
@@ -36,15 +36,15 @@ func (t *Tree) Height() float64 {
 }
 
 // height : Private recursive function, returns height of specified node.
-func (t *Tree) height(root *node) float64 {
+func (t *AVL) height(root *node) float64 {
 	if root == nil {
 		return 0
 	}
 	return math.Max(t.height(root.left), t.height(root.right)) + 1
 }
 
-// rotateLeft : Called by Tree type. Given a parent and child node, a left rotation is performed. The new parent node is returned.
-func (t *Tree) rotateLeft(parent *node, child *node) *node {
+// rotateLeft : Called by AVL type. Given a parent and child node, a left rotation is performed. The new parent node is returned.
+func (t *AVL) rotateLeft(parent *node, child *node) *node {
 	parent.right = child.left
 	child.left = parent
 
@@ -56,8 +56,8 @@ func (t *Tree) rotateLeft(parent *node, child *node) *node {
 	return child
 }
 
-// rotateRight : Called by Tree type. Given a parent and child node, a right rotation is performed. The new parent node is returned.
-func (t *Tree) rotateRight(parent *node, child *node) *node {
+// rotateRight : Called by AVL type. Given a parent and child node, a right rotation is performed. The new parent node is returned.
+func (t *AVL) rotateRight(parent *node, child *node) *node {
 	parent.left = child.right
 	child.right = parent
 
@@ -69,8 +69,8 @@ func (t *Tree) rotateRight(parent *node, child *node) *node {
 	return child
 }
 
-// checkBalance : Called by Tree type. Correctly sets the given node's height and balance, then rotates if necessary. New parent node is returned.
-func (t *Tree) checkBalance(root *node) *node {
+// checkBalance : Called by AVL type. Correctly sets the given node's height and balance, then rotates if necessary. New parent node is returned.
+func (t *AVL) checkBalance(root *node) *node {
 	root.setHeight()
 	root.setBalance()
 	//fmt.Printf("Node: %v | Height: %v | Balance: %v\n", root.data, root.height, root.balance)

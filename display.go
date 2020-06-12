@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-// AscendingDisplay : Wrapper function for recursive ascending display
-func (t *Tree) AscendingDisplay() int {
+// Ascending : Wrapper function for recursive ascending display
+func (t *AVL) Ascending() int {
 	if t.root == nil {
 		return 0
 	}
@@ -14,17 +14,17 @@ func (t *Tree) AscendingDisplay() int {
 }
 
 // ascending : Called by tree type. Recursive ascending display. Returns number of nodes.
-func (t *Tree) ascending(root *node) int {
+func (t *AVL) ascending(root *node) int {
 	if root == nil {
 		return 0
 	}
 	retVal := t.ascending(root.left) + 1
-	fmt.Printf("%d ", root.data)
+	fmt.Printf("%v ", root.data)
 	return t.ascending(root.right) + retVal
 }
 
-// DescendingDisplay : Wrapper function for recursive descending display.
-func (t *Tree) DescendingDisplay() int {
+// Descending : Wrapper function for recursive descending display.
+func (t *AVL) Descending() int {
 	if t.root == nil {
 		return 0
 	}
@@ -32,17 +32,17 @@ func (t *Tree) DescendingDisplay() int {
 }
 
 // descending : Called by tree type. Recursive descending display. Returns number of nodes.
-func (t *Tree) descending(root *node) int {
+func (t *AVL) descending(root *node) int {
 	if root == nil {
 		return 0
 	}
 	retVal := t.descending(root.right) + 1
-	fmt.Printf("%d ", root.data)
+	fmt.Printf("%v ", root.data)
 	return t.descending(root.left) + retVal
 }
 
-// PreorderDisplay : Wrapper function for recursive preorder display.
-func (t *Tree) PreorderDisplay() int {
+// Preorder : Wrapper function for recursive preorder display.
+func (t *AVL) Preorder() int {
 	if t.root == nil {
 		return 0
 	}
@@ -50,16 +50,16 @@ func (t *Tree) PreorderDisplay() int {
 }
 
 // preorder : Called by tree type. Recursive preorder display. Returns number of nodes.
-func (t *Tree) preorder(root *node) int {
+func (t *AVL) preorder(root *node) int {
 	if root == nil {
 		return 0
 	}
-	fmt.Printf("%d ", root.data)
+	fmt.Printf("%v ", root.data)
 	return t.preorder(root.left) + t.preorder(root.right) + 1
 }
 
-// LevelDisplay : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
-func (t *Tree) LevelDisplay(showBalance bool) int {
+// LevelOrder : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
+func (t *AVL) LevelOrder(showBalance bool) int {
 	if t.root == nil {
 		return 0
 	}
@@ -85,9 +85,11 @@ func (t *Tree) LevelDisplay(showBalance bool) int {
 			fmt.Printf("\nLevel %v: ", level)
 		}
 		if showBalance {
-			fmt.Printf("%d|%v ", root.data, root.balance)
+			//fmt.Printf("%v|%v ", js.Value(root.data.(Object)).Get("key").Int(), root.balance)
+			fmt.Printf("%v|%v ", root.data, root.balance)
 		} else {
-			fmt.Printf("%d ", root.data)
+			//fmt.Printf("%v ", js.Value(root.data.(Object)).Get("key").Int())
+			fmt.Printf("%v ", root.data)
 		}
 
 		if root.left != nil {
