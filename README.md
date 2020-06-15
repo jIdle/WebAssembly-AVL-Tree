@@ -1,6 +1,6 @@
 # AVL Tree
 
-I am using this project as an opportunity to learn Golang better, as well as a way to better understand AVL trees before moving on to the WAVL implementation.
+I am using this project as an opportunity to learn Golang better, as well as a way to better understand AVL trees and WebAssembly.
 
 * All basic BST functionality is there and working. 
 * All AVL functionality is there and working. Though all functions are in their bottom-up recursive versions, instead of the more optimal top-down iterative ones.
