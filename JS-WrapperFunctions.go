@@ -1,6 +1,10 @@
 package main
 
-import "syscall/js"
+import (
+	"fmt"
+	"reflect"
+	"syscall/js"
+)
 
 /*	The following methods grant web programs access to this library.
 	Once compiled into a WebAssembly module, these methods will be
@@ -16,6 +20,7 @@ import "syscall/js"
 // InsertJS : Wrapper function for AVL insert.
 func (t *AVL) InsertJS(this js.Value, args []js.Value) interface{} {
 	t.Insert(args[0])
+	return nil
 }
 
 // RemoveJS : Wrapper function for AVL remove.
@@ -25,25 +30,58 @@ func (t *AVL) RemoveJS(this js.Value, args []js.Value) interface{} {
 
 // RetrieveJS : Wrapper function for AVL retrieve.
 func (t *AVL) RetrieveJS(this js.Value, args []js.Value) interface{} {
-	return t.Retrieve(args[0])
+	switch v := t.Retrieve(args[0]).(type) {
+	case Int:
+		return int(v)
+	case Float:
+		return float64(v)
+	case String:
+		return string(v)
+	case Object:
+		return js.Value(v)
+	default:
+		panic(fmt.Sprintf("Could not find a compatible type conversion for %v\n", reflect.TypeOf(v).Name()))
+	}
 }
 
 // LevelOrderJS : Wrapper function for AVL LevelOrder.
 func (t *AVL) LevelOrderJS(this js.Value, args []js.Value) interface{} {
-	return t.LevelOrder(false)
+	array := t.LevelOrder()
+	for i, e := range array {
+		array[i] = revertTypes(e.([]interface{}))
+	}
+	return array
 }
 
 // PreorderJS : Wrapper function for AVL Preorder.
 func (t *AVL) PreorderJS(this js.Value, args []js.Value) interface{} {
-	return t.Preorder()
+	return revertTypes(t.Preorder())
 }
 
 // AscendingJS : Wrapper function for AVL Ascending.
 func (t *AVL) AscendingJS(this js.Value, args []js.Value) interface{} {
-	return t.Ascending()
+	return revertTypes(t.Ascending())
 }
 
 // DescendingJS : Wrapper function for AVL Descending.
 func (t *AVL) DescendingJS(this js.Value, args []js.Value) interface{} {
-	return t.Descending()
+	return revertTypes(t.Descending())
+}
+
+func revertTypes(array []interface{}) []interface{} {
+	for i, e := range array {
+		switch v := e.(type) {
+		case Int:
+			array[i] = int(v)
+		case Float:
+			array[i] = float64(v)
+		case String:
+			array[i] = string(v)
+		case Object:
+			array[i] = js.Value(v)
+		default:
+			panic(fmt.Sprintf("Could not find a compatible type conversion for %v\n", reflect.TypeOf(v).Name()))
+		}
+	}
+	return array
 }

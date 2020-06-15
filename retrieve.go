@@ -1,7 +1,7 @@
 package main
 
 // Retrieve : Wrapper function for AVL recursive search.
-func (t *AVL) Retrieve(basicData interface{}) Interface {
+func (t *AVL) Retrieve(basicData interface{}) interface{} {
 	data := checkType(basicData)
 	if t.root == nil {
 		return nil

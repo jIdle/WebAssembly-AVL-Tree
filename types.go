@@ -14,15 +14,21 @@ type Interface interface {
 // AVL : Container for root node.
 type AVL struct {
 	root *node
+	size int
 }
 
 // NewAVL : Returns a new and empty AVL tree. May initialize JS wrapper functions.
 func NewAVL() *AVL {
-	tree := &AVL{root: nil}
+	tree := &AVL{root: nil, size: 0}
 	js.Global().Set("Insert", js.FuncOf(tree.InsertJS))
 	js.Global().Set("Remove", js.FuncOf(tree.RemoveJS))
 	js.Global().Set("Retrieve", js.FuncOf(tree.RetrieveJS))
-	js.Global().Set("Display", js.FuncOf(tree.DisplayJS))
+	js.Global().Set("LevelOrder", js.FuncOf(tree.LevelOrderJS))
+	js.Global().Set("Preorder", js.FuncOf(tree.PreorderJS))
+	//js.Global().Set("Postorder", js.FuncOf(tree.PostorderJS))
+	js.Global().Set("Ascending", js.FuncOf(tree.AscendingJS))
+	js.Global().Set("Descending", js.FuncOf(tree.DescendingJS))
+	return tree
 }
 
 // node : Container for user data
@@ -73,9 +79,8 @@ func checkType(toConvert interface{}) Interface {
 			Number := js.Global().Get("Number")
 			if Number.Call("isInteger", goVal).Bool() {
 				return Int(goVal.Int())
-			} else {
-				return Float(goVal.Float())
 			}
+			return Float(goVal.Float())
 		case "string":
 			return String(goVal.String())
 		case "object":

@@ -2,95 +2,87 @@ package main
 
 import (
 	"container/list"
-	"fmt"
 )
 
 // Ascending : Wrapper function for recursive ascending display
-func (t *AVL) Ascending() int {
+func (t *AVL) Ascending() []interface{} {
 	if t.root == nil {
-		return 0
+		return nil
 	}
-	return t.ascending(t.root)
+	var order []interface{}
+	return t.ascending(t.root, order)
 }
 
 // ascending : Called by tree type. Recursive ascending display. Returns number of nodes.
-func (t *AVL) ascending(root *node) int {
+func (t *AVL) ascending(root *node, order []interface{}) []interface{} {
 	if root == nil {
-		return 0
+		return order
 	}
-	retVal := t.ascending(root.left) + 1
-	fmt.Printf("%v ", root.data)
-	return t.ascending(root.right) + retVal
+	return t.ascending(root.right, append(t.ascending(root.left, order), root.data))
 }
 
 // Descending : Wrapper function for recursive descending display.
-func (t *AVL) Descending() int {
+func (t *AVL) Descending() []interface{} {
 	if t.root == nil {
-		return 0
+		return nil
 	}
-	return t.descending(t.root)
+	var order []interface{}
+	return t.descending(t.root, order)
 }
 
 // descending : Called by tree type. Recursive descending display. Returns number of nodes.
-func (t *AVL) descending(root *node) int {
+func (t *AVL) descending(root *node, order []interface{}) []interface{} {
 	if root == nil {
-		return 0
+		return order
 	}
-	retVal := t.descending(root.right) + 1
-	fmt.Printf("%v ", root.data)
-	return t.descending(root.left) + retVal
+	return t.descending(root.left, append(t.descending(root.right, order), root.data))
 }
 
 // Preorder : Wrapper function for recursive preorder display.
-func (t *AVL) Preorder() int {
+func (t *AVL) Preorder() []interface{} {
 	if t.root == nil {
-		return 0
+		return nil
 	}
-	return t.preorder(t.root)
+	var order []interface{}
+	return t.preorder(t.root, order)
 }
 
 // preorder : Called by tree type. Recursive preorder display. Returns number of nodes.
-func (t *AVL) preorder(root *node) int {
+func (t *AVL) preorder(root *node, order []interface{}) []interface{} {
 	if root == nil {
-		return 0
+		return order
 	}
-	fmt.Printf("%v ", root.data)
-	return t.preorder(root.left) + t.preorder(root.right) + 1
+	return t.preorder(root.right, t.preorder(root.left, append(order, root.data)))
 }
 
 // LevelOrder : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
-func (t *AVL) LevelOrder(showBalance bool) int {
+func (t *AVL) LevelOrder() []interface{} {
 	if t.root == nil {
-		return 0
+		return nil
 	}
 
 	type pair struct {
 		first, second interface{}
 	}
 
-	count := 0
-	lastLevel := 1
-	queue := list.New()
-	queue.PushBack(pair{t.root, 1})
+	var order []interface{}
+	var o []interface{}
 
-	fmt.Printf("Level %v: ", 1)
+	lastLevel := 0
+	queue := list.New()
+	queue.PushBack(pair{t.root, 0})
+
 	for queue.Len() != 0 {
-		count++
 		nlPair, _ := (queue.Remove(queue.Front())).(pair) // nl = node-level
 		root, _ := nlPair.first.(*node)
 		level, _ := nlPair.second.(int)
 
 		if lastLevel != level {
 			lastLevel = level
-			fmt.Printf("\nLevel %v: ", level)
+			order = append(order, o)
+			o = nil
 		}
-		if showBalance {
-			//fmt.Printf("%v|%v ", js.Value(root.data.(Object)).Get("key").Int(), root.balance)
-			fmt.Printf("%v|%v ", root.data, root.balance)
-		} else {
-			//fmt.Printf("%v ", js.Value(root.data.(Object)).Get("key").Int())
-			fmt.Printf("%v ", root.data)
-		}
+		o = append(o, root.data)
 
 		if root.left != nil {
 			queue.PushBack(pair{root.left, level + 1})
@@ -99,7 +91,7 @@ func (t *AVL) LevelOrder(showBalance bool) int {
 			queue.PushBack(pair{root.right, level + 1})
 		}
 	}
-	fmt.Println()
+	order = append(order, o)
 
-	return count
+	return order
 }

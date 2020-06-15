@@ -27,20 +27,14 @@ func (n *node) setHeight() {
 	}
 }
 
-// Height : Public function returns the total height of the tree. Calls recursive height function on root.
-func (t *AVL) Height() float64 {
-	if t.root == nil {
-		return 0
-	}
-	return t.height(t.root)
+// GetSize : Returns the number of nodes in the tree.
+func (t *AVL) GetSize() int {
+	return t.size
 }
 
-// height : Private recursive function, returns height of specified node.
-func (t *AVL) height(root *node) float64 {
-	if root == nil {
-		return 0
-	}
-	return math.Max(t.height(root.left), t.height(root.right)) + 1
+// GetHeight : Returns the height of the tree.
+func (t *AVL) GetHeight() int {
+	return t.root.height
 }
 
 // rotateLeft : Called by AVL type. Given a parent and child node, a left rotation is performed. The new parent node is returned.

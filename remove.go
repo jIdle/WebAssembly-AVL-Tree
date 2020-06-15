@@ -1,31 +1,29 @@
 package main
 
-import "errors"
-
 // Remove : Wrapper function for Tree recursive remove.
-func (t *Tree) Remove(basicData interface{}) error {
+func (t *AVL) Remove(basicData interface{}) bool {
 	data := checkType(basicData)
 	if t.root == nil {
-		return errors.New("no data to remove in empty tree")
+		return false
 	}
-	var err error
-	t.root, err = t.remove(t.root, data)
-	return err
+	var success bool
+	t.root, success = t.remove(t.root, data)
+	return success
 }
 
 // remove : Called by Tree type. Recursive binary removal. Returns error if applicable.
-func (t *Tree) remove(root *node, data Interface) (*node, error) {
-	var err error
+func (t *AVL) remove(root *node, data Interface) (*node, bool) {
 	if root == nil {
-		err = errors.New("could not find specified value")
-		return nil, err
+		return nil, true
 	}
 
+	var success bool
 	if data.Less(root.data) {
-		root.left, err = t.remove(root.left, data)
+		root.left, success = t.remove(root.left, data)
 	} else if root.data.Less(data) {
-		root.right, err = t.remove(root.right, data)
+		root.right, success = t.remove(root.right, data)
 	} else {
+		t.size--
 		if root.left == nil && root.right == nil {
 			root = nil
 		} else if root.left == nil {
@@ -39,14 +37,14 @@ func (t *Tree) remove(root *node, data Interface) (*node, error) {
 			ios.right = root.right
 			root = ios
 		}
-		return root, nil
+		return root, true
 	}
 
-	return t.checkBalance(root), err
+	return t.checkBalance(root), success
 }
 
 // findIOS : Helper function for remove to search and return the In-Order Successor
-func (t *Tree) findIOS(root *node) (*node, *node) {
+func (t *AVL) findIOS(root *node) (*node, *node) {
 	var ios *node
 	if root.left == nil {
 		ios := root
