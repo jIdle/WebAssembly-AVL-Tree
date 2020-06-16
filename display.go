@@ -4,7 +4,7 @@ import (
 	"container/list"
 )
 
-// Ascending : Wrapper function for recursive ascending display
+// Ascending : Wrapper function for recursive ascending traversal.
 func (t *AVL) Ascending() []interface{} {
 	if t.root == nil {
 		return nil
@@ -13,7 +13,7 @@ func (t *AVL) Ascending() []interface{} {
 	return t.ascending(t.root, order)
 }
 
-// ascending : Called by tree type. Recursive ascending display. Returns number of nodes.
+// ascending : Called by AVL type. Recursive ascending traversal.
 func (t *AVL) ascending(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
@@ -21,7 +21,7 @@ func (t *AVL) ascending(root *node, order []interface{}) []interface{} {
 	return t.ascending(root.right, append(t.ascending(root.left, order), root.data))
 }
 
-// Descending : Wrapper function for recursive descending display.
+// Descending : Wrapper function for recursive descending traversal.
 func (t *AVL) Descending() []interface{} {
 	if t.root == nil {
 		return nil
@@ -30,7 +30,7 @@ func (t *AVL) Descending() []interface{} {
 	return t.descending(t.root, order)
 }
 
-// descending : Called by tree type. Recursive descending display. Returns number of nodes.
+// descending : Called by AVL type. Recursive descending traversal.
 func (t *AVL) descending(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
@@ -38,7 +38,7 @@ func (t *AVL) descending(root *node, order []interface{}) []interface{} {
 	return t.descending(root.left, append(t.descending(root.right, order), root.data))
 }
 
-// Preorder : Wrapper function for recursive preorder display.
+// Preorder : Wrapper function for recursive preorder traversal.
 func (t *AVL) Preorder() []interface{} {
 	if t.root == nil {
 		return nil
@@ -47,12 +47,29 @@ func (t *AVL) Preorder() []interface{} {
 	return t.preorder(t.root, order)
 }
 
-// preorder : Called by tree type. Recursive preorder display. Returns number of nodes.
+// preorder : Called by AVL type. Recursive preorder traversal.
 func (t *AVL) preorder(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
 	}
 	return t.preorder(root.right, t.preorder(root.left, append(order, root.data)))
+}
+
+// Postorder : Wrapper function for recursive postorder traversal.
+func (t *AVL) Postorder() []interface{} {
+	if t.root == nil {
+		return nil
+	}
+	var order []interface{}
+	return t.postorder(t.root, order)
+}
+
+// postorder : Called by AVL type. Recursive postorder traversal.
+func (t *AVL) postorder(root *node, order []interface{}) []interface{} {
+	if root == nil {
+		return order
+	}
+	return append(t.postorder(root.right, t.postorder(root.left, order)), root.data)
 }
 
 // LevelOrder : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.

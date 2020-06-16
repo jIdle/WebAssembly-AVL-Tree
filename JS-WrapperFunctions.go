@@ -44,28 +44,33 @@ func (t *AVL) RetrieveJS(this js.Value, args []js.Value) interface{} {
 	}
 }
 
-// LevelOrderJS : Wrapper function for AVL LevelOrder.
+// AscendingJS : Wrapper function for AVL Ascending traversal.
+func (t *AVL) AscendingJS(this js.Value, args []js.Value) interface{} {
+	return revertTypes(t.Ascending())
+}
+
+// DescendingJS : Wrapper function for AVL Descending traversal.
+func (t *AVL) DescendingJS(this js.Value, args []js.Value) interface{} {
+	return revertTypes(t.Descending())
+}
+
+// PreorderJS : Wrapper function for AVL Preorder traversal.
+func (t *AVL) PreorderJS(this js.Value, args []js.Value) interface{} {
+	return revertTypes(t.Preorder())
+}
+
+// PostorderJS : Wrapper function for AVL Postorder traversal.
+func (t *AVL) PostorderJS(this js.Value, args []js.Value) interface{} {
+	return revertTypes(t.Postorder())
+}
+
+// LevelOrderJS : Wrapper function for AVL LevelOrder traversal.
 func (t *AVL) LevelOrderJS(this js.Value, args []js.Value) interface{} {
 	array := t.LevelOrder()
 	for i, e := range array {
 		array[i] = revertTypes(e.([]interface{}))
 	}
 	return array
-}
-
-// PreorderJS : Wrapper function for AVL Preorder.
-func (t *AVL) PreorderJS(this js.Value, args []js.Value) interface{} {
-	return revertTypes(t.Preorder())
-}
-
-// AscendingJS : Wrapper function for AVL Ascending.
-func (t *AVL) AscendingJS(this js.Value, args []js.Value) interface{} {
-	return revertTypes(t.Ascending())
-}
-
-// DescendingJS : Wrapper function for AVL Descending.
-func (t *AVL) DescendingJS(this js.Value, args []js.Value) interface{} {
-	return revertTypes(t.Descending())
 }
 
 func revertTypes(array []interface{}) []interface{} {

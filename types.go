@@ -23,11 +23,11 @@ func NewAVL() *AVL {
 	js.Global().Set("Insert", js.FuncOf(tree.InsertJS))
 	js.Global().Set("Remove", js.FuncOf(tree.RemoveJS))
 	js.Global().Set("Retrieve", js.FuncOf(tree.RetrieveJS))
-	js.Global().Set("LevelOrder", js.FuncOf(tree.LevelOrderJS))
-	js.Global().Set("Preorder", js.FuncOf(tree.PreorderJS))
-	//js.Global().Set("Postorder", js.FuncOf(tree.PostorderJS))
 	js.Global().Set("Ascending", js.FuncOf(tree.AscendingJS))
 	js.Global().Set("Descending", js.FuncOf(tree.DescendingJS))
+	js.Global().Set("Preorder", js.FuncOf(tree.PreorderJS))
+	js.Global().Set("Postorder", js.FuncOf(tree.PostorderJS))
+	js.Global().Set("LevelOrder", js.FuncOf(tree.LevelOrderJS))
 	return tree
 }
 
