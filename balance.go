@@ -1,8 +1,9 @@
-package main
+package avl
 
 import "math"
 
-// setBalance : Called by node type. The node will ask its children for height values to compute its own balance factor.
+// setBalance determines and sets the balance factor of the node receiver.
+// Balance factor is computed from the heights of the receiver's children.
 func (n *node) setBalance() {
 	if n.left == nil && n.right == nil {
 		n.balance = 0
@@ -15,6 +16,8 @@ func (n *node) setBalance() {
 	}
 }
 
+// setHeight determines and sets the height of the node receiver.
+// Height is computed by adding 1 to the larger height of the left and right child.
 func (n *node) setHeight() {
 	if n.left == nil && n.right == nil {
 		n.height = 1
@@ -27,17 +30,18 @@ func (n *node) setHeight() {
 	}
 }
 
-// GetSize : Returns the number of nodes in the tree.
+// GetSize returns the number of nodes in the tree.
 func (t *AVL) GetSize() int {
 	return t.size
 }
 
-// GetHeight : Returns the height of the tree.
+// GetHeight returns the height of the tree.
 func (t *AVL) GetHeight() int {
 	return t.root.height
 }
 
-// rotateLeft : Called by AVL type. Given a parent and child node, a left rotation is performed. The new parent node is returned.
+// rotateLeft will perform a left rotation given a parent and child node.
+// The new parent node is returned.
 func (t *AVL) rotateLeft(parent *node, child *node) *node {
 	parent.right = child.left
 	child.left = parent
@@ -50,7 +54,8 @@ func (t *AVL) rotateLeft(parent *node, child *node) *node {
 	return child
 }
 
-// rotateRight : Called by AVL type. Given a parent and child node, a right rotation is performed. The new parent node is returned.
+// rotateRight will perform a right rotation given a parent and child node.
+// The new parent node is returned.
 func (t *AVL) rotateRight(parent *node, child *node) *node {
 	parent.left = child.right
 	child.right = parent
@@ -63,20 +68,22 @@ func (t *AVL) rotateRight(parent *node, child *node) *node {
 	return child
 }
 
-// checkBalance : Called by AVL type. Correctly sets the given node's height and balance, then rotates if necessary. New parent node is returned.
+// checkBalance performs a rotation if the height-balance property is not satisfied.
+// This is accomplished by correctly setting the current node's height and balance.
+// Then depending on its balance and that of its children, a particular rotation
+// will be performed, restoring the height-balance property of the AVL tree.
 func (t *AVL) checkBalance(root *node) *node {
 	root.setHeight()
 	root.setBalance()
-	//fmt.Printf("Node: %v | Height: %v | Balance: %v\n", root.data, root.height, root.balance)
 
 	if root.balance < -1 { // right rotation
 		if root.right.balance > 0 {
-			root.right = t.rotateRight(root.right, root.right.left)
+			root.right = t.rotateRight(root.right, root.right.left) // double rotation
 		}
 		root = t.rotateLeft(root, root.right)
 	} else if root.balance > 1 { // left rotation
 		if root.left.balance < 0 {
-			root.left = t.rotateLeft(root.left, root.left.right)
+			root.left = t.rotateLeft(root.left, root.left.right) // double rotation
 		}
 		root = t.rotateRight(root, root.left)
 	}

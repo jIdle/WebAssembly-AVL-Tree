@@ -1,10 +1,10 @@
-package main
+package avl
 
 import (
 	"container/list"
 )
 
-// Ascending : Wrapper function for recursive ascending traversal.
+// Ascending is a wrapper function for the recursive ascending traversal function.
 func (t *AVL) Ascending() []interface{} {
 	if t.root == nil {
 		return nil
@@ -13,7 +13,9 @@ func (t *AVL) Ascending() []interface{} {
 	return t.ascending(t.root, order)
 }
 
-// ascending : Called by AVL type. Recursive ascending traversal.
+// ascending is a recursive function which traverses the AVL tree
+// in-order, appending each element to a slice, and returning that
+// slice once finished.
 func (t *AVL) ascending(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
@@ -21,7 +23,7 @@ func (t *AVL) ascending(root *node, order []interface{}) []interface{} {
 	return t.ascending(root.right, append(t.ascending(root.left, order), root.data))
 }
 
-// Descending : Wrapper function for recursive descending traversal.
+// Descending is a wrapper function for recursive descending traversal function.
 func (t *AVL) Descending() []interface{} {
 	if t.root == nil {
 		return nil
@@ -30,7 +32,9 @@ func (t *AVL) Descending() []interface{} {
 	return t.descending(t.root, order)
 }
 
-// descending : Called by AVL type. Recursive descending traversal.
+// descending is a recursive function which traverses the AVL tree
+// reverse in-order, appending each element to a slice, and returning
+// that slice once finished.
 func (t *AVL) descending(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
@@ -38,7 +42,7 @@ func (t *AVL) descending(root *node, order []interface{}) []interface{} {
 	return t.descending(root.left, append(t.descending(root.right, order), root.data))
 }
 
-// Preorder : Wrapper function for recursive preorder traversal.
+// Preorder is a wrapper function for recursive preorder traversal function.
 func (t *AVL) Preorder() []interface{} {
 	if t.root == nil {
 		return nil
@@ -47,7 +51,9 @@ func (t *AVL) Preorder() []interface{} {
 	return t.preorder(t.root, order)
 }
 
-// preorder : Called by AVL type. Recursive preorder traversal.
+// preorder is a recursive function which traverses the AVL tree
+// pre-order, appending each element to a slice, and returning that
+// slice once finished.
 func (t *AVL) preorder(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
@@ -55,7 +61,7 @@ func (t *AVL) preorder(root *node, order []interface{}) []interface{} {
 	return t.preorder(root.right, t.preorder(root.left, append(order, root.data)))
 }
 
-// Postorder : Wrapper function for recursive postorder traversal.
+// Postorder is a wrapper function for recursive postorder traversal function.
 func (t *AVL) Postorder() []interface{} {
 	if t.root == nil {
 		return nil
@@ -64,7 +70,9 @@ func (t *AVL) Postorder() []interface{} {
 	return t.postorder(t.root, order)
 }
 
-// postorder : Called by AVL type. Recursive postorder traversal.
+// postorder is a recursive function which traverses the AVL tree
+// post-order, appending each element to a slice, and returning that
+// slice once finished.
 func (t *AVL) postorder(root *node, order []interface{}) []interface{} {
 	if root == nil {
 		return order
@@ -72,7 +80,14 @@ func (t *AVL) postorder(root *node, order []interface{}) []interface{} {
 	return append(t.postorder(root.right, t.postorder(root.left, order)), root.data)
 }
 
-// LevelOrder : Uses the BFS algorithm to display nodes in level order. Returns number of nodes.
+// LevelOrder is an iterative function which traverses the AVL tree
+// in level-order, appending each element within a level to a slice,
+// and appending each slice to another slice. This slice of slices is
+// returned once the traversal is finished.
+// In normal terms, the return type is just a 2D-array where each array
+// represents a level, and the elements within each array represent
+// the elements within a level.
+// This traversal is achieved by using the BFS algorithm.
 func (t *AVL) LevelOrder() []interface{} {
 	if t.root == nil {
 		return nil

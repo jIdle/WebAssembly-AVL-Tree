@@ -1,6 +1,8 @@
-package main
+package avl
 
-// Insert : Wrapper function for node insert.
+// Insert is a wrapper function for the recursive insert function.
+// It converts the argument data (basicData) passed in into a
+// generic form, then passes it to the recursive insert function.
 func (t *AVL) Insert(basicData interface{}) {
 	data := checkType(basicData)
 	if t.root == nil {
@@ -11,7 +13,10 @@ func (t *AVL) Insert(basicData interface{}) {
 	t.root = t.insert(t.root, data)
 }
 
-// insert : Called by AVL type. Recursive binary insertion. No return, should always insert.
+// insert is a recursive function which inserts a node containing
+// the user-specified data into the AVL tree. Location of insertion
+// is determined by binary search. A node pointer is returned to ensure
+// that the changes propagate to the root node and persist.
 func (t *AVL) insert(root *node, data Interface) *node {
 	if root == nil {
 		t.size++

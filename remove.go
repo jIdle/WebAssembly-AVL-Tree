@@ -1,6 +1,8 @@
-package main
+package avl
 
-// Remove : Wrapper function for Tree recursive remove.
+// Remove is a wrapper function for the recursive remove function.
+// It converts the argument data (basicData) passed in into a
+// generic form, then passes it to the recursive remove function.
 func (t *AVL) Remove(basicData interface{}) bool {
 	data := checkType(basicData)
 	if t.root == nil {
@@ -11,7 +13,12 @@ func (t *AVL) Remove(basicData interface{}) bool {
 	return success
 }
 
-// remove : Called by Tree type. Recursive binary removal. Returns error if applicable.
+// remove is a recursive function which removes a node containing
+// the user-specified data from the AVL tree. Location of removal
+// is determined via binary search. A node pointer is returned to
+// ensure that the changes propagate to the root node and persist.
+// A bool is returned to signify whether the removal was a success
+// or failure.
 func (t *AVL) remove(root *node, data Interface) (*node, bool) {
 	if root == nil {
 		return nil, true
@@ -43,7 +50,8 @@ func (t *AVL) remove(root *node, data Interface) (*node, bool) {
 	return t.checkBalance(root), success
 }
 
-// findIOS : Helper function for remove to search and return the In-Order Successor
+// findIOS is a helper function used by remove to search and return
+// the In-Order Successor as replacement for the node marked for deletion.
 func (t *AVL) findIOS(root *node) (*node, *node) {
 	var ios *node
 	if root.left == nil {

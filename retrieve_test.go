@@ -1,4 +1,4 @@
-package main_test
+package avl_test
 
 import "testing"
 
