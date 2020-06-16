@@ -36,7 +36,7 @@ func (t *AVL) GetSize() int {
 }
 
 // GetHeight returns the height of the tree.
-func (t *AVL) GetHeight() int {
+func (t *AVL) GetHeight() float64 {
 	return t.root.height
 }
 
