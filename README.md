@@ -13,7 +13,7 @@ Next up:
 1. Fix the test code. While it gets the job done, it's the first test code I've ever written so it's pretty bad.
 
 # Instructions
-Grab the WASM module and wasm_exec.js files under the Releases tab, then have a loop at steps 6 & 7.
+Grab the WASM module and wasm_exec.js files under the Releases tab, then have a look at steps 6 & 7.
 Otherwise, if you'd like to generate the WASM module manually, then the following steps will help.
 
 To import this library as a WASM module in a Javascript program:
@@ -48,5 +48,3 @@ GOOS=js GOARCH=wasm go build -o main.wasm
 // The second script tag may be relegated to its own Javascript file, rather than being crammed into an html file.
 ```
 7. Run your server. Your job is done!
-
-**At some point I will add the wasm module and wasm_exec.js to Releases so that using this library is easier.**
