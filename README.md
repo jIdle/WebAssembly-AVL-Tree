@@ -11,6 +11,7 @@ I am using this project as an opportunity to learn Golang better, as well as a w
 
 Next up:
 1. Fix the test code. While it gets the job done, it's the first test code I've ever written so it's pretty bad.
+2. Example directories for how to use this library in a Javascript program.
 
 # Instructions
 Grab the WASM module and wasm_exec.js files under the Releases tab, then have a look at steps 6 & 7.
