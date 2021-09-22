@@ -1,4 +1,4 @@
-# Generic AVL Tree
+# WebAssembly AVL Tree in Go
 
 I am using this project as an opportunity to learn Golang better, as well as a way to better understand AVL trees and WebAssembly.
 
